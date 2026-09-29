@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="it" class="theme-ortofrutta">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I prodotti Primoverde &mdash; Produttori Arborea</title>
+<meta name="description" content="Ortofrutta fresca e di quarta gamma coltivata in Sardegna dai soci della Cooperativa Produttori Arborea: patate novelle, carote, fragole, meloni, angurie, pomodori, radicchio, funghi e le insalate pronte Primoverde.">
+<meta name="theme-color" content="#FFF7F1">
+<link rel="icon" href="assets/loghi/produttori-arborea-glifo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Roboto+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/pa.css">
+</head>
+<body>
+
+<a class="sr-only" href="#contenuto">Vai al contenuto</a>
+
+<!-- ==================================================================
+     HEADER — sul sito è già il template header di Elementor: in produzione
+     non va ricostruito, la pagina lo eredita.
+     ================================================================== -->
+<header class="pa-header">
+  <a class="pa-header__logo" href="https://www.produttoriarborea.it/">
+    <img src="assets/loghi/produttori-arborea.svg" alt="Produttori Arborea" width="200" height="83">
+  </a>
+
+  <button class="pa-burger" type="button" aria-expanded="false" aria-controls="menu-principale">
+    <span class="sr-only">Apri il menu</span>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3zM3 11h18v2H3zM3 16h18v2H3z"/></svg>
+  </button>
+
+  <nav class="pa-nav" id="menu-principale" aria-label="Menu principale">
+    <ul class="pa-nav__list">
+      <li><a href="https://www.produttoriarborea.it/">Home</a></li>
+
+      <li class="pa-nav__item" data-open="false">
+        <button class="pa-nav__toggle" type="button" aria-expanded="false">Chi siamo
+          <svg viewBox="0 0 320 512" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/></svg>
+        </button>
+        <ul class="pa-nav__sub">
+          <li><a href="https://www.produttoriarborea.it/storia/">Storia</a></li>
+          <li><a href="https://www.produttoriarborea.it/certificazioni/">Certificazioni</a></li>
+        </ul>
+      </li>
+
+      <li class="pa-nav__item" data-open="false">
+        <button class="pa-nav__toggle" type="button" aria-expanded="false">I nostri Brand
+          <svg viewBox="0 0 320 512" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/></svg>
+        </button>
+        <ul class="pa-nav__sub">
+          <li><a href="https://www.produttoriarborea.it/primoverde/" aria-current="page">Primoverde</a></li>
+          <li><a href="https://www.produttoriarborea.it/rossopregio/">Rossopregio</a></li>
+          <li><a href="https://www.produttoriarborea.it/meridoro/">Meridoro</a></li>
+        </ul>
+      </li>
+
+      <li class="pa-nav__item" data-open="false">
+        <button class="pa-nav__toggle" type="button" aria-expanded="false">Progetti
+          <svg viewBox="0 0 320 512" aria-hidden="true"><path d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"/></svg>
+        </button>
+        <ul class="pa-nav__sub">
+          <li><a href="https://www.produttoriarborea.it/progetti/arbolat/">Arbolat</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/contratto-di-filiera-zootecnica/">Contratto di Filiera Zootecnica Sigillo Italiano</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/progetto-disidratazione-fieni-e-foraggi/">Progetto Disidratazione Fieni e Foraggi</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/progetto-jessica-energie-rinnovabili-ed-economia-circolare/">Progetto Jessica &ndash; Energie Rinnovabili ed Economia Circolare</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/progetto-linea-farine-carni-per-petfood/">Progetto Linea farine carni per petfood</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/agrilogistica/">AgriLogistica</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/agristar/">Agristar</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/bioboes/">Bio Boes</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/promobovis/">Promobovis</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/meatculture/">MeatCulture</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/caddy/">Caddy</a></li>
+          <li><a href="https://www.produttoriarborea.it/progetti/prisma/">Prisma</a></li>
+        </ul>
+      </li>
+
+      <li><a href="https://www.produttoriarborea.it/sostenibilita/">Sostenibilit&agrave;</a></li>
+      <li><a href="https://www.produttoriarborea.it/contatti/">Contatti</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="contenuto">
+
+<!-- ====== 1. HERO · contenitore 2 colonne: testo + immagine ============ -->
+<section class="pa-hero">
+  <div class="container pa-due">
+    <div>
+      <p class="pa-hero__briciole">
+        <a href="https://www.produttoriarborea.it/">Home</a> &nbsp;/&nbsp;
+        <a href="https://www.produttoriarborea.it/primoverde/">Primoverde</a> &nbsp;/&nbsp; Prodotti
+      </p>
+
+      <div class="pa-lockup">
+        <img class="pa-lockup__marchio" src="assets/loghi/primoverde.svg" alt="Primoverde">
+      </div>
+
+      <p class="pa-chip pa-chip--foglia">vivi di bont&agrave;</p>
+
+      <h1>I prodotti Primoverde</h1>
+
+      <p class="testo-largo">
+        Primoverde &egrave; il marchio di Produttori Arborea che racchiude l&rsquo;esperienza di una
+        produzione ortofrutticola fresca e di qualit&agrave;, coltivata prevalentemente in Sardegna
+        da oltre 50&nbsp;anni. Il raccolto si divide in due linee: il <b>fresco</b>, come arriva
+        dal campo, e la <b>quarta gamma</b>, gi&agrave; lavata e pronta da consumare.
+      </p>
+
+      <p style="display:flex;flex-wrap:wrap;gap:12px;margin-top:28px">
+        <a class="pa-btn pa-btn--pieno" href="#fresco">Linea del fresco</a>
+        <a class="pa-btn" href="#quarta-gamma">Quarta gamma</a>
+      </p>
+    </div>
+
+    <figure class="pa-due__figura" style="margin:0">
+      <img src="assets/img/pv-hero.jpg" alt="Cassette di fragole Primoverde appena confezionate">
+    </figure>
+  </div>
+</section>
+
+<!-- ====== 2. LINEA DEL FRESCO · griglia di image box ==================== -->
+<section class="fascia" id="fresco">
+  <div class="container">
+    <div class="centrato" style="margin-bottom:44px">
+      <p class="pa-chip">Linea del fresco</p>
+      <h2>Otto prodotti, un solo campo</h2>
+      <p class="testo-largo">
+        Ogni prodotto Primoverde &egrave; coltivato nei campi dei soci della Cooperativa, che seguono
+        pratiche a basso impatto ambientale per offrire prodotti freschi, locali e sostenibili.
+      </p>
+      <p class="pa-scarica" style="justify-content:center"><a class="pa-btn" href="assets/brochure/primoverde-linea-del-fresco.pdf" download><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"/></svg> Scarica la brochure</a></p>
+    </div>
+
+    <div class="pa-griglia">
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-patate-novelle.png" alt="Confezione di patate novelle Primoverde" loading="lazy"></div>
+        <h3>Patate novelle</h3>
+        <p>Grazie al doppio raccolto e a una conservazione pi&ugrave; breve, le nostre patate novelle sono fresche tutto l&rsquo;anno e mantengono tutto il loro sapore autentico. Perfette per ogni piatto, offrono qualit&agrave; e genuinit&agrave; in ogni stagione.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-carote.png" alt="Confezioni di carote Primoverde" loading="lazy"></div>
+        <h3>Carote</h3>
+        <p>Croccanti, dolci e dal colore intenso, le nostre carote sono sempre fresche e ricche di gusto. Ideali per insalate, vellutate o per contorni deliziosi.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-fragole.png" alt="Vaschetta di fragole Primoverde" loading="lazy"></div>
+        <h3>Fragole</h3>
+        <p>Succose, gustose e irresistibilmente dolci, le nostre fragole portano in tavola il sapore della natura. Raccolte da mani esperte alla giusta maturazione, sono perfette per dessert e momenti di pura freschezza.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-meloni.png" alt="Melone retato Primoverde" loading="lazy"></div>
+        <h3>Meloni</h3>
+        <p>Morbidi e zuccherini, i nostri meloni verdi e retati sono un concentrato di dolcezza naturale. Perfetti da soli o in abbinamento con salumi e formaggi.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-angurie.png" alt="Anguria Baby Primoverde" loading="lazy"></div>
+        <h3>Angurie</h3>
+        <p>Dissetante, dolce e succosa, la nostra anguria &egrave; sinonimo di estate e piacere. Selezioniamo con cura le diverse tipologie, con e senza semi, per offrire un&rsquo;esplosione di freschezza in ogni morso.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-pomodori.png" alt="Vaschetta di pomodorini Primoverde" loading="lazy"></div>
+        <h3>Pomodori</h3>
+        <p>Disponibili in diverse variet&agrave;, i nostri pomodori sono ideali per insalate fresche, e piatti mediterranei.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-radicchio.png" alt="Radicchio Primoverde confezionato" loading="lazy"></div>
+        <h3>Radicchio</h3>
+        <p>Dal colore vibrante e dal sapore leggermente amarognolo, il nostro radicchio &egrave; il protagonista di insalate e piatti raffinati. Sempre fresco e croccante, grazie alla produzione stagionale.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-funghi.png" alt="Vaschetta di funghi Primoverde" loading="lazy"></div>
+        <h3>Funghi</h3>
+        <p>Grazie a una raccolta attenta e a una conservazione ottimale, i nostri funghi arricchiscono ogni piatto con il loro aroma intenso e naturale. Perfetti per risotti, contorni e ricette gourmet.</p>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ====== 3. QUARTA GAMMA · griglia di image box su fondo bianco ======== -->
+<section class="fascia fascia--bianca" id="quarta-gamma">
+  <div class="container">
+    <div class="pa-due" style="margin-bottom:44px;align-items:center">
+      <div>
+        <p class="pa-chip">Quarta gamma</p>
+        <h2>Lavate, confezionate, pronte</h2>
+        <p>
+          La nostra selezione di quarta gamma &egrave; pensata per chi desidera prodotti freschi, pratici
+          e di qualit&agrave;, pronti per essere consumati in pochi istanti. Le nostre insalate e verdure,
+          lavate e confezionate con cura, conservano intatto tutto il loro sapore autentico e le
+          propriet&agrave; nutritive.
+        </p>
+        <p class="pa-scarica"><a class="pa-btn" href="assets/brochure/primoverde-quarta-gamma.pdf" download><svg viewBox="0 0 512 512" aria-hidden="true"><path d="M216 0h80c13.3 0 24 10.7 24 24v168h87.7c17.8 0 26.7 21.5 14.1 34.1L269.7 378.3c-7.5 7.5-19.8 7.5-27.3 0L90.1 226.1c-12.6-12.6-3.7-34.1 14.1-34.1H192V24c0-13.3 10.7-24 24-24zm296 376v112c0 13.3-10.7 24-24 24H24c-13.3 0-24-10.7-24-24V376c0-13.3 10.7-24 24-24h146.7l49 49c20.1 20.1 52.5 20.1 72.6 0l49-49H488c13.3 0 24 10.7 24 24zm-124 88c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20zm64 0c0-11-9-20-20-20s-20 9-20 20 9 20 20 20 20-9 20-20z"/></svg> Scarica la brochure</a></p>
+      </div>
+      <figure class="pa-due__figura pa-due__figura--larga" style="margin:0">
+        <img src="assets/img/pv-hero-quarta.jpg" alt="Linea di lavorazione della quarta gamma nello stabilimento ortofrutticolo">
+      </figure>
+    </div>
+
+    <div class="pa-griglia">
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-carota-baby.png" alt="Confezione Carota baby Primoverde" loading="lazy"></div>
+        <h3>Carota baby</h3>
+        <p>Dolci, croccanti e pronte da gustare, le nostre carote baby sono lo snack perfetto o l&rsquo;aggiunta ideale per insalate e contorni freschi.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-carota-julienne.png" alt="Confezione Carota julienne Primoverde" loading="lazy"></div>
+        <h3>Carota julienne</h3>
+        <p>Tagliate finemente per una consistenza leggera e versatile, le nostre carote julienne sono perfette per insalate e ricette creative.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-rucola.png" alt="Confezione Rucola Primoverde" loading="lazy"></div>
+        <h3>Rucola</h3>
+        <p>Dal sapore intenso, la nostra rucola aggiunge un tocco di carattere a ogni piatto. Perfetta per insalate, pizze e secondi piatti.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-iceberg.png" alt="Confezione Iceberg Primoverde" loading="lazy"></div>
+        <h3>Iceberg</h3>
+        <p>Fresca e croccante, la nostra lattuga iceberg &egrave; il contorno perfetto o la base ideale per insalate.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-croccante.png" alt="Confezione Croccante Primoverde" loading="lazy"></div>
+        <h3>Croccante</h3>
+        <p>L&rsquo;incontro perfetto per un mix dal sapore vivace e dalla consistenza irresistibile.</p>
+        <ul class="pa-scheda__mix"><li>Lattuga</li><li>Iceberg</li><li>Indivia Riccia</li><li>Radicchio</li><li>Rucola</li></ul>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-aurora.png" alt="Confezione Aurora Primoverde" loading="lazy"></div>
+        <h3>Aurora</h3>
+        <p>Una semplicit&agrave; raffinata che crea un mix dal sapore equilibrato, ideale per accompagnare ogni pasto con leggerezza.</p>
+        <ul class="pa-scheda__mix"><li>Pan di Zucchero</li><li>Radicchio</li></ul>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-campidanese.png" alt="Confezione Campidanese Primoverde" loading="lazy"></div>
+        <h3>Campidanese</h3>
+        <p>Un&rsquo;esplosione di colori e sapori. Perfetta per chi ama le insalate ricche e saporite.</p>
+        <ul class="pa-scheda__mix"><li>Pan di Zucchero</li><li>Radicchio</li><li>Indivia Riccia</li><li>Indivia Scarola</li><li>Carote a Fili</li></ul>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-smeralda.png" alt="Confezione Smeralda Primoverde" loading="lazy"></div>
+        <h3>Smeralda</h3>
+        <p>Un mix equilibrato dal gusto delicato e leggermente amarognolo. Ideale per insalate fresche e leggere.</p>
+        <ul class="pa-scheda__mix"><li>Pan di Zucchero</li><li>Radicchio</li><li>Indivia Riccia</li><li>Indivia Scarola</li></ul>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack pa-scheda__figura--ill"><img src="assets/ill/pomodori.png" alt="" loading="lazy"></div>
+        <h3>Insalata saporita</h3>
+        <p>Un mix gustoso e colorato, per un&rsquo;insalata ricca e completa, pronta da gustare.</p>
+        <ul class="pa-scheda__mix"><li>Pan di Zucchero</li><li>Radicchio</li><li>Carote a Fili</li><li>Pomodorini</li></ul>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-prezzemolo-tritato.png" alt="Confezione Prezzemolo tritato Primoverde" loading="lazy"></div>
+        <h3>Prezzemolo tritato</h3>
+        <p>Fresco e gi&agrave; pronto all&rsquo;uso, il nostro prezzemolo tritato &egrave; l&rsquo;alleato perfetto per insaporire qualsiasi piatto con un tocco di aroma inconfondibile.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-prezzemolo-aglio.png" alt="Confezione Prezzemolo e aglio tritati Primoverde" loading="lazy"></div>
+        <h3>Prezzemolo e aglio tritati</h3>
+        <p>Freschezza e sapore pronti all&rsquo;uso. Ideali per arricchire ogni ricetta con un tocco aromatico e genuino.</p>
+      </article>
+
+      <article class="pa-scheda">
+        <div class="pa-scheda__figura pa-scheda__figura--pack"><img src="assets/img/pv-soffritto.png" alt="Confezione Soffritto Primoverde" loading="lazy"></div>
+        <h3>Soffritto</h3>
+        <p>Il classico trito, pronto per dare sapore a ogni preparazione.</p>
+        <ul class="pa-scheda__mix"><li>Sedano</li><li>Carota</li><li>Cipolla</li></ul>
+      </article>
+
+    </div>
+
+    <p class="pa-nota-fonte">
+      Denominazioni e descrizioni sono riprese dai cataloghi Primoverde &laquo;Linea del fresco&raquo;
+      e &laquo;Quarta gamma&raquo; del 16&nbsp;marzo&nbsp;2026. I prodotti di quarta gamma sono
+      rappresentati con le illustrazioni ufficiali del sistema di identit&agrave;: il catalogo non
+      contiene fotografie di quei formati.
+    </p>
+  </div>
+</section>
+
+<!-- ====== 4. FILIERA · quattro icon box in riga ======================== -->
+<section class="fascia fascia--scura">
+  <div class="container">
+    <h2>La filiera corta: dal campo alla tavola</h2>
+    <p class="testo-largo" style="margin-bottom:40px">
+      La filiera corta di Primoverde garantisce che ogni fase produttiva sia seguita da vicino.
+    </p>
+
+    <ol class="pa-passi">
+      <li class="pa-passo">
+        <span class="pa-passo__numero">1</span>
+        <h3>Nei campi dei soci</h3>
+        <p>I prodotti Primoverde nascono nei campi dei nostri soci in Sardegna.</p>
+      </li>
+      <li class="pa-passo">
+        <span class="pa-passo__numero">2</span>
+        <h3>Sotto l&rsquo;occhio dell&rsquo;agronomo</h3>
+        <p>I nostri tecnici agronomi supervisionano ogni fase della coltivazione, con pratiche a basso impatto ambientale.</p>
+      </li>
+      <li class="pa-passo">
+        <span class="pa-passo__numero">3</span>
+        <h3>Controlli in stabilimento</h3>
+        <p>Dopo la raccolta i prodotti arrivano direttamente nel nostro stabilimento, dove sono sottoposti a rigidi controlli di qualit&agrave;.</p>
+      </li>
+      <li class="pa-passo">
+        <span class="pa-passo__numero">4</span>
+        <h3>Sugli scaffali della GDO</h3>
+        <p>Solo dopo questi controlli i prodotti sono pronti per essere distribuiti nelle principali catene della GDO.</p>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<!-- ====== 5. NUMERI · quattro contatori ================================ -->
+<section class="fascia fascia--stretta fascia--oro">
+  <div class="container">
+    <div class="pa-numeri">
+      <div class="pa-numeri__voce"><strong>1955</strong><span>L&rsquo;anno in cui nasce la Cooperativa, nel cuore di Arborea</span></div>
+      <div class="pa-numeri__voce"><strong>220</strong><span>Soci circa, agricoltori e allevatori</span></div>
+      <div class="pa-numeri__voce"><strong>2004</strong><span>Riconoscimento come OP ortofrutta</span></div>
+      <div class="pa-numeri__voce"><strong>2018</strong><span>Unica OP del settore pataticolo in Sardegna</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 6. SOSTENIBILITÀ · contenitore 2 colonne ===================== -->
+<section class="fascia">
+  <div class="container pa-due">
+    <div>
+      <h2>Sostenibilit&agrave; e rispetto per l&rsquo;ambiente</h2>
+      <p>
+        Primoverde &egrave; impegnata nella sostenibilit&agrave; ambientale in ogni fase della produzione.
+        La Produttori Arborea adotta tecniche di coltivazione a basso impatto ambientale, come la
+        <b>difesa integrata</b>, che combina pratiche agronomiche e di difesa sostenibili per garantire
+        prodotti sani e gustosi.
+      </p>
+      <p>
+        Particolare attenzione &egrave; rivolta all&rsquo;uso delle risorse idriche e all&rsquo;impiego di
+        energie rinnovabili, per ridurre al minimo l&rsquo;impatto ambientale e contribuire al benessere
+        del nostro territorio.
+      </p>
+      <a class="pa-btn" href="https://www.produttoriarborea.it/sostenibilita/">La nostra sostenibilit&agrave;</a>
+    </div>
+    <figure class="pa-due__figura pa-due__figura--larga" style="margin:0">
+      <img src="assets/img/pv-banda-1.jpg" alt="Campo coltivato nella piana di Arborea">
+    </figure>
+  </div>
+</section>
+
+<!-- ====== 7. CONTATTI · contenitore 2 colonne ========================== -->
+<section class="fascia fascia--scura" id="contatti">
+  <div class="container pa-due">
+    <div>
+      <h2>Stabilimento ortofrutticolo</h2>
+      <p class="testo-largo">
+        Per informazioni commerciali, forniture e ordini puoi contattare direttamente
+        lo stabilimento ortofrutticolo di Arborea.
+      </p>
+      <p style="font-size:1.1rem;line-height:2">
+        <a href="tel:+3907838032214">0783 8032214</a><br>
+        <a href="tel:+3907838032204">0783 8032204</a><br>
+        <a href="mailto:info@produttoriarborea.it">info@produttoriarborea.it</a><br>
+        Strada 14 Ovest &mdash; 09092 Arborea (OR)
+      </p>
+      <a class="pa-btn pa-btn--chiaro" href="https://www.produttoriarborea.it/contatti/">Tutti i contatti</a>
+    </div>
+    <figure class="pa-due__figura pa-due__figura--larga" style="margin:0">
+      <img src="assets/img/pv-banda-2.jpg" alt="Veduta aerea degli stabilimenti della Cooperativa ad Arborea">
+    </figure>
+  </div>
+</section>
+
+</main>
+
+<!-- ==================================================================
+     FOOTER — sul sito è già il template footer di Elementor (versione
+     Primoverde): in produzione la pagina lo eredita.
+     ================================================================== -->
+<footer class="pa-footer">
+  <div class="pa-footer__social">
+    <div class="container">
+      <h3>Seguici sui nostri social per rimanere sempre aggiornato</h3>
+      <div class="pa-footer__reti">
+        <a href="https://www.facebook.com/primoverdeproduttoriarborea" aria-label="Facebook">
+          <svg viewBox="0 0 320 512" aria-hidden="true"><path d="M279.14 288l14.22-92.66h-88.91v-60.13c0-25.35 12.42-50.06 52.24-50.06h40.42V6.26S260.43 0 225.36 0c-73.22 0-121.08 44.38-121.08 124.72v70.62H22.89V288h81.39v224h100.17V288z"/></svg>
+        </a>
+        <a href="https://www.instagram.com/primoverde_produttoriarborea/" aria-label="Instagram">
+          <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
+        </a>
+        <a href="https://www.linkedin.com/company/cooperativa-produttori-arborea-societa'-agricola/" aria-label="LinkedIn">
+          <svg viewBox="0 0 448 512" aria-hidden="true"><path d="M100.28 448H7.4V148.9h92.88zM53.79 108.1C24.09 108.1 0 83.5 0 53.8a53.79 53.79 0 0 1 107.58 0c0 29.7-24.1 54.3-53.79 54.3zM447.9 448h-92.68V302.4c0-34.7-.7-79.2-48.29-79.2-48.29 0-55.69 37.7-55.69 76.7V448h-92.78V148.9h89.08v40.8h1.3c12.4-23.5 42.69-48.3 87.88-48.3 94 0 111.28 61.9 111.28 142.3V448z"/></svg>
+        </a>
+      </div>
+
+      <div class="pa-footer__contatti">
+        <img src="assets/loghi/produttori-arborea-cerchio.png" alt="Produttori Arborea">
+        <div>
+          <h4>Stabilimento ortofrutticolo Primoverde</h4>
+          <ul>
+            <li>
+              <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M497.39 361.8l-112-48a24 24 0 0 0-28 6.9l-49.6 60.6A370.66 370.66 0 0 1 130.6 204.11l60.6-49.6a23.94 23.94 0 0 0 6.9-28l-48-112A24.16 24.16 0 0 0 122.6.61l-104 24A24 24 0 0 0 0 48c0 256.5 207.9 464 464 464a24 24 0 0 0 23.4-18.6l24-104a24.29 24.29 0 0 0-14.01-27.6z"/></svg>
+              <a href="tel:+3907838032238">(+39) 0783 8032238</a>
+            </li>
+            <li>
+              <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M464 64H48C21.49 64 0 85.49 0 112v288c0 26.51 21.49 48 48 48h416c26.51 0 48-21.49 48-48V112c0-26.51-21.49-48-48-48zm0 48v40.805c-22.422 18.259-58.168 46.651-134.587 106.49-16.841 13.247-50.201 45.072-73.413 44.701-23.208.375-56.579-31.459-73.413-44.701C106.18 199.465 70.425 171.067 48 152.805V112h416zM48 400V214.398c22.914 18.251 55.409 43.862 104.938 82.646 21.857 17.205 60.134 55.186 103.062 54.955 42.717.231 80.509-37.199 103.053-54.947 49.528-38.783 82.032-64.401 104.947-82.653V400H48z"/></svg>
+              <a href="mailto:info@produttoriarborea.it">info@produttoriarborea.it</a>
+            </li>
+            <li>
+              <svg viewBox="0 0 384 512" aria-hidden="true"><path d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z"/></svg>
+              <span>Strada 14 Ovest - 09092 Arborea (OR)</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pa-footer__legale">
+    <div class="container">
+      <p>
+        COOPERATIVA PRODUTTORI ARBOREA &ndash; Societ&agrave; Agricola | Strada 14 Ovest &ndash; 09092 Arborea (OR) | P.IVA n. 00042360958<br>
+        Iscritta alla C.C.I.A.A. di Cagliari-Oristano REA OR &ndash; 41658 N. Iscrizione: 00042370957
+      </p>
+      <div class="pa-footer__azioni">
+        <a class="pa-btn pa-btn--piccolo pa-btn--chiaro" href="https://produttoriarborea.teamtailor.com/jobs/" target="_blank" rel="nofollow noopener">Lavora con noi</a>
+        <a class="pa-btn pa-btn--piccolo pa-btn--chiaro" href="https://www.produttoriarborea.it/whistleblowing/">Whistleblowing</a>
+        <a class="pa-btn pa-btn--piccolo pa-btn--chiaro" href="https://www.produttoriarborea.it/wp-content/uploads/2025/03/Politica-per-la-parita-di-genere-e-collegate.pdf">Politica per la parit&agrave; di genere (pdf)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="pa-footer__coda">
+    <a href="https://www.iubenda.com/privacy-policy/63449175">Privacy Policy</a>
+    <span>Copyright &copy; Produttori Arborea</span>
+  </div>
+</footer>
+
+<button class="pa-su" type="button" aria-label="Torna in alto">
+  <svg viewBox="0 0 320 512" aria-hidden="true"><path d="M288.662 352H31.338c-17.818 0-26.741-21.543-14.142-34.142l128.662-128.662c7.81-7.81 20.474-7.81 28.284 0l128.662 128.662c12.6 12.599 3.676 34.142-14.142 34.142z"/></svg>
+</button>
+
+<script src="assets/pa.js"></script>
+</body>
+</html>

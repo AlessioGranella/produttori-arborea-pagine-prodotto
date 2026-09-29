@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pagine prodotto &mdash; Produttori Arborea</title>
+<meta name="description" content="Anteprima delle pagine prodotto Primoverde e Meridoro per il sito produttoriarborea.it.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#FFF7F1">
+<link rel="icon" href="assets/loghi/produttori-arborea-glifo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Roboto+Flex:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/pa.css">
+<style>
+  .indice{ min-height:100dvh; display:grid; place-items:center; padding:64px 24px; }
+  .indice__griglia{ display:grid; gap:28px; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); margin-top:44px; }
+  .anteprima{
+    background:#fff; border-radius:var(--pa-radius); padding:32px 30px;
+    box-shadow:var(--pa-ombra); text-decoration:none; display:block;
+    transition:transform .2s, box-shadow .2s;
+  }
+  .anteprima:hover{ transform:translateY(-4px); box-shadow:var(--pa-ombra-alta); }
+  .anteprima img{ height:52px; width:auto; margin-bottom:22px; }
+  .anteprima h2{ font-size:1.35rem; margin-bottom:8px; }
+  .anteprima p{ font-size:.95rem; margin:0 0 18px; }
+  .anteprima span{
+    font-family:"Fredoka",sans-serif; font-weight:700; text-transform:uppercase;
+    font-size:.78rem; letter-spacing:.04em; color:var(--pa-campagna);
+  }
+</style>
+</head>
+<body>
+<main class="indice">
+  <div class="container centrato">
+    <img src="assets/loghi/produttori-arborea.svg" alt="Produttori Arborea" style="width:210px;margin:0 auto 36px">
+    <p class="pa-chip">Anteprima</p>
+    <h1 style="font-size:clamp(2rem,4.4vw,3.2rem)">Le pagine prodotto</h1>
+    <p class="testo-largo" style="margin-inline:auto">
+      Due nuove pagine per produttoriarborea.it, con navigazione e pi&egrave; di pagina
+      identici a quelli del sito. Contenuti presi dai cataloghi ufficiali.
+    </p>
+
+    <div class="indice__griglia">
+      <a class="anteprima" href="primoverde-prodotti.html">
+        <img src="assets/loghi/primoverde.svg" alt="">
+        <h2>I prodotti Primoverde</h2>
+        <p>La linea del fresco e la quarta gamma: venti prodotti con le confezioni ufficiali, la filiera corta e i contatti dello stabilimento ortofrutticolo.</p>
+        <span>Apri la pagina &rarr;</span>
+      </a>
+
+      <a class="anteprima" href="meridoro-prodotti.html">
+        <img src="assets/loghi/meridoro.svg" alt="">
+        <h2>I prodotti Meridoro</h2>
+        <p>Il catalogo del mangimificio per bovini, ovini, caprini ed equini, con schede tecniche, curva di lattazione, formati e punti vendita.</p>
+        <span>Apri la pagina &rarr;</span>
+      </a>
+    </div>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,390 @@
+/* =========================================================================
+   Produttori Arborea — pagine prodotto (Primoverde / Meridoro)
+   Token ripresi dal sito live (Elementor kit 1101) e dal brandbook.
+
+   NOTA DI COSTRUZIONE
+   Ogni blocco qui sotto corrisponde a un widget Elementor nativo:
+   contenitore, titolo, editor di testo, immagine, image box, icon list,
+   contatore, pulsante, fisarmonica. Non ci sono componenti su misura.
+   ========================================================================= */
+
+:root{
+  /* main palette (brandbook cap. 4) */
+  --pa-campagna:#004928;
+  --pa-carne:#8D1926;
+  --pa-ferro:#535A60;
+  --pa-foglia:#95C11F;
+  --pa-arancio:#F18700;
+  --pa-oro:#D7B46A;
+  --pa-oro-scuro:#957C46;
+  --pa-pomodoro:#D20A11;
+  --pa-sabbia:#FFF7F1;
+  --pa-argento:#B6C0C6;
+  --pa-legno:#3A2828;
+  --pa-notte:#000E1E;
+
+  --pa-bg:var(--pa-sabbia);
+  --pa-testo:var(--pa-ferro);
+  --pa-titolo:var(--pa-campagna);
+  --pa-accento:var(--pa-campagna);
+
+  --pa-container:1140px;
+  --pa-gutter:24px;
+  --pa-radius:28px;
+  --pa-radius-goccia:64px 64px 64px 8px;
+
+  --pa-ombra:0 18px 40px -28px rgba(0,14,30,.45);
+  --pa-ombra-alta:0 26px 60px -30px rgba(0,14,30,.55);
+}
+
+.theme-ortofrutta{ --pa-accento:var(--pa-foglia); }
+.theme-agrozoo{ --pa-accento:var(--pa-oro); }
+
+*,*::before,*::after{ box-sizing:border-box; }
+
+html{ scroll-behavior:smooth; scroll-padding-top:100px; }
+@media (prefers-reduced-motion:reduce){ html{ scroll-behavior:auto; } }
+
+body{
+  margin:0;
+  background:var(--pa-bg);
+  color:var(--pa-testo);
+  font-family:"Roboto Flex","Roboto",system-ui,sans-serif;
+  font-size:17px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+
+h1,h2,h3,h4{
+  font-family:"Fredoka","Roboto Flex",system-ui,sans-serif;
+  color:var(--pa-titolo);
+  line-height:1.2;
+  margin:0 0 .5em;
+  font-weight:600;
+}
+h1{ font-size:clamp(2.5rem,5.6vw,4.2rem); letter-spacing:-.01em; }
+h2{ font-size:clamp(1.8rem,3.4vw,2.7rem); }
+h3{ font-size:clamp(1.2rem,2vw,1.55rem); }
+h4{ font-size:1.05rem; }
+p{ margin:0 0 1em; }
+a{ color:var(--pa-campagna); }
+img{ max-width:100%; display:block; }
+
+.container{ width:100%; max-width:var(--pa-container); margin-inline:auto; padding-inline:var(--pa-gutter); }
+.fascia{ padding-block:clamp(48px,7vw,92px); }
+.fascia--stretta{ padding-block:clamp(32px,4vw,56px); }
+.fascia--bianca{ background:#fff; }
+.fascia--scura{ background:var(--pa-campagna); color:#fff; }
+.fascia--scura h1,.fascia--scura h2,.fascia--scura h3,.fascia--scura h4{ color:#fff; }
+.fascia--scura a{ color:#fff; }
+.fascia--legno{ background:var(--pa-legno); color:#fff; }
+.fascia--legno h2,.fascia--legno h3{ color:#fff; }
+.fascia--oro{ background:var(--pa-oro); }
+.fascia--oro h2,.fascia--oro h3{ color:var(--pa-campagna); }
+
+.testo-largo{ max-width:64ch; }
+.centrato{ text-align:center; }
+.centrato .testo-largo{ margin-inline:auto; }
+
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+  clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
+
+/* ---------------------------------------------------- pulsanti (Elementor) */
+.pa-btn{
+  display:inline-flex; align-items:center; gap:.6em;
+  font-family:"Fredoka",sans-serif; font-weight:700; text-transform:uppercase;
+  font-size:.86rem; letter-spacing:.02em; line-height:1;
+  padding:.95em 1.7em; border-radius:50px; border:3px solid var(--pa-campagna);
+  color:var(--pa-campagna); background:transparent; text-decoration:none;
+  cursor:pointer; transition:background .2s,color .2s;
+}
+.pa-btn:hover{ background:var(--pa-campagna); color:var(--pa-sabbia); }
+.pa-btn--pieno{ background:var(--pa-campagna); color:var(--pa-sabbia); }
+.pa-btn--pieno:hover{ background:transparent; color:var(--pa-campagna); }
+.pa-btn--chiaro{ border-color:var(--pa-sabbia); color:var(--pa-sabbia); }
+.pa-btn--chiaro:hover{ background:var(--pa-sabbia); color:var(--pa-campagna); }
+.pa-btn--piccolo{ font-size:.75rem; padding:.7em 1.2em; border-width:2px; }
+.pa-btn svg{ width:1.05em; height:1.05em; fill:currentColor; flex:0 0 auto; }
+.pa-scarica{ display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
+
+:where(a,button,summary,input):focus-visible{
+  outline:3px solid var(--pa-arancio); outline-offset:3px; border-radius:6px;
+}
+
+/* ------------------------------------------------------------------- chip */
+.pa-chip{
+  display:inline-flex; align-items:center;
+  font-family:"Fredoka",sans-serif; font-weight:500; font-size:.8rem;
+  text-transform:uppercase; letter-spacing:.06em; line-height:1;
+  padding:.55em 1em; border-radius:50px;
+  background:var(--pa-oro); color:var(--pa-campagna);
+  margin:0 0 18px;
+}
+.pa-chip--foglia{ background:var(--pa-foglia); color:var(--pa-campagna); }
+
+/* ===================================================================
+   HEADER — modello di riferimento: è il template header già in linea
+   =================================================================== */
+.pa-header{
+  position:sticky; top:0; z-index:60;
+  background:var(--pa-sabbia);
+  padding:10px clamp(20px,6vw,100px);
+  display:flex; align-items:center; gap:24px;
+  box-shadow:0 1px 0 rgba(0,73,40,.10);
+}
+.pa-header__logo img{ width:200px; max-width:42vw; height:auto; }
+.pa-nav{ margin-left:auto; }
+.pa-nav__list{ list-style:none; display:flex; align-items:center; gap:4px; margin:0; padding:0; }
+.pa-nav__list a,.pa-nav__toggle{
+  font-family:"Fredoka",sans-serif; font-size:18px; font-weight:400; line-height:1;
+  color:var(--pa-campagna); text-decoration:none;
+  padding:14px 12px; display:inline-flex; align-items:center; gap:.35em;
+  background:none; border:0; cursor:pointer;
+}
+.pa-nav__list a:hover,.pa-nav__toggle:hover{ color:var(--pa-oro); }
+.pa-nav__list a[aria-current="page"]{ color:var(--pa-oro-scuro); }
+.pa-nav__item{ position:relative; }
+.pa-nav__toggle svg{ width:11px; height:11px; fill:currentColor; transition:transform .2s; }
+.pa-nav__item[data-open="true"] .pa-nav__toggle svg{ transform:rotate(180deg); }
+.pa-nav__sub{
+  list-style:none; margin:0; padding:8px 0;
+  position:absolute; top:100%; left:0; min-width:270px;
+  background:var(--pa-sabbia); border-radius:14px;
+  box-shadow:var(--pa-ombra-alta); display:none;
+}
+.pa-nav__item[data-open="true"] .pa-nav__sub{ display:block; }
+.pa-nav__sub a{ font-weight:500; font-size:16px; padding:10px 20px; display:block; line-height:1.35; }
+
+.pa-burger{ display:none; margin-left:auto; background:none; border:0; cursor:pointer; color:var(--pa-campagna); padding:10px; }
+.pa-burger svg{ width:30px; height:30px; fill:currentColor; }
+
+@media (max-width:1024px){
+  .pa-burger{ display:block; }
+  .pa-nav{
+    position:fixed; inset:64px 0 auto 0; margin:0;
+    background:var(--pa-sabbia); box-shadow:var(--pa-ombra-alta);
+    max-height:calc(100dvh - 64px); overflow:auto; display:none; padding:8px 0 24px;
+  }
+  .pa-nav[data-aperto="true"]{ display:block; }
+  .pa-nav__list{ flex-direction:column; align-items:stretch; gap:0; }
+  .pa-nav__list > li > a,.pa-nav__toggle{ width:100%; padding:14px 24px; justify-content:space-between; }
+  .pa-nav__sub{ position:static; box-shadow:none; border-radius:0; background:rgba(0,73,40,.04); min-width:0; }
+  .pa-nav__sub a{ padding-left:40px; }
+}
+
+/* ===================================================================
+   FOOTER — modello di riferimento: è il template footer già in linea
+   =================================================================== */
+.pa-footer__social{ background:var(--pa-sabbia); padding:56px 0 40px; text-align:center; }
+.pa-footer__social h3{ font-size:1.25rem; margin-bottom:18px; }
+.pa-footer__reti{ display:flex; justify-content:center; gap:14px; margin-bottom:44px; }
+.pa-footer__reti a{
+  width:46px; height:46px; border-radius:50%; display:grid; place-items:center;
+  background:var(--pa-campagna); color:var(--pa-sabbia); transition:background .2s;
+}
+.pa-footer__reti a:hover{ background:var(--pa-oro); }
+.pa-footer__reti svg{ width:20px; height:20px; fill:currentColor; }
+
+.pa-footer__contatti{
+  display:grid; grid-template-columns:auto 1fr; gap:40px; align-items:center;
+  text-align:left; max-width:820px; margin-inline:auto;
+}
+.pa-footer__contatti img{ width:150px; border-radius:50%; }
+.pa-footer__contatti h4{ font-size:1.15rem; margin-bottom:12px; }
+.pa-footer__contatti ul{ list-style:none; margin:0; padding:0; display:grid; gap:8px; }
+.pa-footer__contatti li{ display:flex; gap:12px; align-items:flex-start; color:var(--pa-campagna); }
+.pa-footer__contatti a{ color:var(--pa-campagna); text-decoration:none; }
+.pa-footer__contatti a:hover{ text-decoration:underline; }
+.pa-footer__contatti svg{ width:17px; height:17px; fill:var(--pa-campagna); flex:0 0 auto; margin-top:4px; }
+
+.pa-footer__legale{ background:var(--pa-campagna); color:var(--pa-sabbia); text-align:center; padding:34px 0 26px; }
+.pa-footer__legale p{ font-size:12px; line-height:1.6; margin:0 auto 22px; max-width:900px; }
+.pa-footer__azioni{ display:flex; flex-wrap:wrap; gap:12px; justify-content:center; }
+.pa-footer__azioni .pa-btn{ font-weight:500; }
+
+.pa-footer__coda{
+  background:var(--pa-campagna); color:var(--pa-sabbia);
+  border-top:1px solid rgba(255,247,241,.18);
+  display:flex; flex-wrap:wrap; gap:8px 28px; justify-content:center; align-items:center;
+  padding:16px 24px; font-size:12px;
+}
+.pa-footer__coda a{ color:var(--pa-sabbia); text-decoration:none; }
+
+@media (max-width:640px){
+  .pa-footer__contatti{ grid-template-columns:1fr; justify-items:center; text-align:center; gap:24px; }
+  .pa-footer__contatti li{ justify-content:center; text-align:left; }
+}
+
+/* ===================================================================
+   HERO — contenitore a 2 colonne: testo + immagine
+   =================================================================== */
+.pa-hero{ padding-block:clamp(40px,6vw,76px) clamp(48px,7vw,88px); }
+.pa-due{
+  display:grid; grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  gap:clamp(28px,5vw,64px); align-items:center;
+}
+.pa-due--inverso .pa-due__figura{ order:-1; }
+.pa-hero__briciole{
+  font-size:.82rem; letter-spacing:.08em; text-transform:uppercase;
+  font-family:"Fredoka",sans-serif; color:var(--pa-oro-scuro); margin-bottom:18px;
+}
+.pa-hero__briciole a{ color:inherit; text-decoration:none; }
+.pa-lockup{ display:flex; align-items:center; gap:30px; margin-bottom:22px; flex-wrap:wrap; }
+.pa-lockup__marchio{ height:70px; width:auto; }
+.pa-due__figura img{
+  width:100%; border-radius:var(--pa-radius-goccia); box-shadow:var(--pa-ombra-alta);
+  aspect-ratio:4/5; object-fit:cover;
+}
+.pa-due__figura--larga img{ aspect-ratio:5/4; }
+
+@media (max-width:860px){
+  .pa-due{ grid-template-columns:1fr; }
+  .pa-due__figura{ order:-1; }
+  .pa-due__figura img{ aspect-ratio:16/10; }
+}
+
+/* ------------------------------------------- contatori (widget Contatore) */
+.pa-numeri{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:32px; text-align:center; }
+.pa-numeri__voce strong{
+  display:block; font-family:"Fredoka",sans-serif; font-weight:600;
+  font-size:clamp(2.1rem,4.2vw,3rem); line-height:1; color:var(--pa-campagna);
+}
+.pa-numeri__voce span{ display:block; margin-top:10px; font-size:.95rem; }
+
+/* ===================================================================
+   GRIGLIA DI SCHEDE — widget «Image box» dentro un contenitore a griglia
+   =================================================================== */
+.pa-griglia{ display:grid; gap:clamp(18px,2.4vw,28px); grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); }
+.pa-griglia--3{ grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); }
+
+.pa-scheda{
+  background:#fff; border-radius:var(--pa-radius); padding:26px 24px 24px;
+  text-align:center; box-shadow:var(--pa-ombra);
+  display:flex; flex-direction:column; gap:10px;
+}
+.fascia--bianca .pa-scheda{ background:var(--pa-sabbia); }
+/* foto ritagliata a cerchio (linea Meridoro, primi piani, animali) */
+.pa-scheda__figura{
+  width:clamp(150px,72%,210px); aspect-ratio:1; margin:0 auto 10px;
+  border-radius:50%; overflow:hidden;
+}
+.pa-scheda__figura img{ width:100%; height:100%; object-fit:cover; }
+
+/* pack scontornato: la confezione sta libera sulla scheda, senza cerchio
+   e senza bordo, cosi non viene mai tagliata. */
+.pa-scheda__figura--pack{
+  width:clamp(190px,92%,260px);
+  border-radius:0; overflow:visible;
+  display:grid; place-items:center; margin-bottom:2px;
+}
+.pa-scheda__figura--pack img{
+  width:100%; height:100%; object-fit:contain;
+  filter:drop-shadow(0 14px 18px rgba(0,14,30,.10));
+}
+.pa-scheda__figura--ill img{ padding:16%; mix-blend-mode:multiply; }
+.pa-scheda h3{ font-size:1.16rem; margin:0; }
+.pa-scheda p{ font-size:.92rem; margin:0; }
+.pa-scheda__mix{
+  list-style:none; margin:auto 0 0; padding:10px 0 0;
+  display:flex; flex-wrap:wrap; gap:6px; justify-content:center;
+}
+.pa-scheda__mix li{
+  font-size:.76rem; padding:.35em .8em; border-radius:50px;
+  background:rgba(149,193,31,.18); color:var(--pa-campagna);
+}
+
+/* ------------------------------------------- passi (widget «Icon box» x4) */
+.pa-passi{ list-style:none; margin:0; padding:0; display:grid; gap:28px; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); }
+.pa-passo__numero{
+  width:44px; height:44px; border-radius:50%; display:grid; place-items:center;
+  border:3px solid var(--pa-accento); color:#fff; margin-bottom:14px;
+  font-family:"Fredoka",sans-serif; font-weight:600;
+}
+.pa-passo h3{ font-size:1.08rem; }
+.pa-passo p{ font-size:.94rem; margin:0; }
+
+/* ===================================================================
+   FISARMONICA — widget «Fisarmonica» di Elementor (qui <details>)
+   =================================================================== */
+.pa-acc{ display:grid; gap:12px; }
+.pa-acc details{
+  background:#fff; border-radius:20px; box-shadow:var(--pa-ombra); overflow:hidden;
+}
+.fascia--bianca .pa-acc details{ background:var(--pa-sabbia); }
+.pa-acc summary{
+  display:flex; align-items:center; gap:18px; cursor:pointer; list-style:none;
+  padding:16px 22px; font-family:"Fredoka",sans-serif; color:var(--pa-campagna);
+}
+.pa-acc summary::-webkit-details-marker{ display:none; }
+.pa-acc summary img{ width:76px; height:76px; border-radius:50%; object-fit:cover; flex:0 0 auto; }
+.pa-acc summary .titolo{ flex:1; min-width:0; }
+.pa-acc summary b{ display:block; font-weight:600; font-size:1.06rem; line-height:1.2; }
+.pa-acc summary small{
+  display:block; font-family:"Roboto Flex",sans-serif; font-weight:400;
+  color:var(--pa-ferro); font-size:.86rem; line-height:1.35; margin-top:3px;
+}
+.pa-acc summary .freccia{ flex:0 0 auto; width:14px; height:14px; fill:var(--pa-oro-scuro); transition:transform .2s; }
+.pa-acc details[open] summary .freccia{ transform:rotate(180deg); }
+.pa-acc__corpo{ padding:4px 22px 24px; border-top:1px solid rgba(0,73,40,.12); margin-top:4px; }
+.pa-acc__corpo > div{ padding-top:18px; }
+
+.pa-dati{ display:grid; gap:24px; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); }
+.pa-dati h4{
+  font-size:.78rem; letter-spacing:.09em; text-transform:uppercase;
+  color:var(--pa-oro-scuro); margin-bottom:8px;
+}
+.pa-dati ul{ margin:0; padding:0; list-style:none; }
+.pa-dati li{ font-size:.9rem; padding:3px 0; display:flex; justify-content:space-between; gap:12px; }
+.pa-dati li span{ color:var(--pa-ferro); }
+.pa-dati li b{ color:var(--pa-campagna); font-variant-numeric:tabular-nums; }
+.pa-dati--elenco li{ display:list-item; list-style:disc; margin-left:1.1em; padding:2px 0; }
+.pa-dati p{ font-size:.9rem; }
+
+.pa-avviso{
+  margin-top:18px; padding:13px 18px; border-radius:16px;
+  background:rgba(141,25,38,.08); color:var(--pa-carne);
+  font-size:.84rem; font-weight:500;
+}
+.pa-pren{
+  display:inline-block; font-family:"Fredoka",sans-serif; font-size:.72rem;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--pa-carne);
+  border:2px solid currentColor; border-radius:50px; padding:.3em .8em; margin-bottom:6px;
+}
+
+/* ------------------------------------------ formati (widget «Image box») */
+.pa-formati{ display:grid; gap:26px; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); }
+.pa-formato{ text-align:center; margin:0; }
+.pa-formato img{ width:100%; aspect-ratio:4/3; object-fit:contain; background:#fff; border-radius:var(--pa-radius); }
+.fascia--bianca .pa-formato img{ background:var(--pa-sabbia); }
+.pa-formato h4{ margin:16px 0 6px; font-size:1.05rem; }
+.pa-formato p{ font-size:.9rem; margin:0; }
+
+/* ------------------------------------- punti vendita (widget «Icon list») */
+.pa-pdv{ display:grid; gap:14px; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); list-style:none; margin:0; padding:0; }
+.pa-pdv li{ background:#fff; border-radius:20px; padding:18px 20px; box-shadow:var(--pa-ombra); }
+.pa-pdv b{ font-family:"Fredoka",sans-serif; font-weight:600; color:var(--pa-campagna); display:block; }
+.pa-pdv span{ display:block; font-size:.88rem; }
+.pa-pdv a{ font-size:.88rem; color:var(--pa-campagna); text-decoration:none; }
+.pa-pdv a:hover{ text-decoration:underline; }
+
+.pa-nota-fonte{
+  font-size:.8rem; color:var(--pa-ferro); opacity:.85; margin-top:32px;
+  border-top:1px solid rgba(0,73,40,.12); padding-top:16px;
+}
+.fascia--scura .pa-nota-fonte,.fascia--legno .pa-nota-fonte{ color:rgba(255,247,241,.8); border-color:rgba(255,247,241,.22); }
+
+/* torna su */
+.pa-su{
+  position:fixed; right:20px; bottom:20px; z-index:50;
+  width:46px; height:46px; border-radius:50%; border:0; cursor:pointer;
+  background:var(--pa-campagna); color:var(--pa-sabbia); display:grid; place-items:center;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+}
+.pa-su[data-visibile="true"]{ opacity:1; pointer-events:auto; }
+.pa-su svg{ width:18px; height:18px; fill:currentColor; }
+
+/* ------------------------------- illustrazione di sezione (widget Immagine) */
+.pa-ill-specie{ display:flex; gap:10px; align-items:flex-end; margin-bottom:14px; }
+.pa-ill-specie img{ height:64px; width:auto; }
