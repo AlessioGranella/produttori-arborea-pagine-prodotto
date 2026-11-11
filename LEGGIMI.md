@@ -147,3 +147,45 @@ sito/
    ├─ loghi/                      loghi ufficiali
    └─ Meridoro Mockup Sacchi/     i mockup originali del cliente (sorgenti, PSD compresi)
 ```
+
+---
+
+# Trova il punto vendita (Meridoro)
+
+`punti-vendita.html` — mappa dei punti vendita agro-zootecnici con ricerca per comune,
+«Vicino a me», filtro per provincia, distanze e pulsante «Indicazioni» (apre Google Maps).
+
+**Questa è l'unica eccezione alla regola «solo widget nativi»**: una mappa con ricerca non
+si fa con i widget di Elementor. È un blocco unico autosufficiente, al posto di un plugin
+come Agile Store Locator (Pro da $49/anno).
+
+## Come si mette in Elementor
+1. Aprire la pagina in Elementor, aggiungere un widget **HTML**.
+2. Incollare **tutto** il contenuto di `elementor/widget-punti-vendita.html`.
+3. Salvare. Non serve nessun plugin né chiave API.
+
+Il blocco porta con sé CSS (classi `pv-*`, token propri) e JavaScript. Usa
+**Leaflet 1.9.4** da cdnjs e le mappe **OpenStreetMap** (gratuite, con attribuzione).
+I caratteri Fredoka e Roboto Flex li carica già il sito.
+
+## Come si aggiornano i punti vendita
+I dati stanno nell'elenco `PUNTI` in `src/widget-punti-vendita.html`. Dopo la modifica:
+
+    python3 src/build-punti-vendita.py
+
+rigenera sia `elementor/widget-punti-vendita.html` sia la pagina di anteprima. Poi si
+ri-incolla il blocco nel widget HTML.
+
+## Da dove vengono i dati
+- **Indirizzi, telefoni, email**: pagina Meridoro di produttoriarborea.it (11/11/2026).
+- **Pattada**: c'è nel Report di Sostenibilità ma non sul sito, mancano indirizzo e
+  contatti. In pagina compare con la nota «Indirizzo e contatti in aggiornamento».
+  **Ortueri** non c'è più (sostituito da Pattada, 04/11/2026).
+- **Coordinate**: OpenStreetMap (Nominatim). Precise sulla via o località per Arborea,
+  Guspini, Dolianova, Suni, Bolotana (zona industriale di Ottana); sul centro del
+  comune per Bassacutena, Muros, Thiesi, Pattada, Fonni, Domusnovas. **Lula** è stata
+  agganciata a «Riu Sologo»: va verificata. Prima di pubblicare conviene chiedere al
+  cliente le coordinate esatte (basta un link Google Maps per punto vendita).
+- **Comuni per la ricerca**: i 377 comuni sardi con il centro geografico, calcolato dai
+  confini ISTAT di openpolis (`src/comuni-sardegna.json`). La ricerca non usa servizi
+  esterni; il CAP non è supportato.
