@@ -1,0 +1,397 @@
+<!-- ======================================================================
+     WIDGET «TROVA IL PUNTO VENDITA» — Rossopregio
+     Blocco unico da incollare in un widget HTML di Elementor.
+     Dipendenze: Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 (cdnjs) + mappa
+     OpenStreetMap. Nessuna chiave API. Con ~300 macellerie i pin vicini si
+     raggruppano e l'elenco ne mostra 10 alla volta.
+     I caratteri Fredoka e Roboto Flex li carica già il sito.
+     Ricerca: città, provincia o CAP (tutto in locale, nessun servizio esterno).
+     Geolocalizzazione: solo quando l'utente preme il pulsante, previa
+     autorizzazione del browser.
+     Per aggiornare i punti vendita: src/punti-rossopregio.json + build.
+     ====================================================================== -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<style>
+.rpv{
+  --rpv-carne:#8D1926; --rpv-carne-scuro:#6B121C; --rpv-carne-tenue:#F6E7E7; --rpv-carne-bordo:#DDB6B8;
+  --rpv-oro:#D7B46A; --rpv-oro-scuro:#957C46; --rpv-sabbia:#FFF7F1; --rpv-ferro:#535A60;
+  --rpv-radius:28px; --rpv-ombra:0 18px 40px -28px rgba(0,14,30,.45);
+  container-type:inline-size;
+  font-family:"Roboto Flex","Roboto",system-ui,sans-serif; color:var(--rpv-ferro);
+  font-size:16px; line-height:1.5;
+}
+.rpv *,.rpv *::before,.rpv *::after{ box-sizing:border-box; }
+.rpv :where(a,button,input):focus-visible{ outline:3px solid var(--rpv-oro); outline-offset:3px; }
+
+/* ----------------------------------------------------------- barra ricerca */
+.rpv-barra{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin:0 0 14px; }
+.rpv-gruppo{ display:flex; flex-direction:column; gap:6px; flex:1 1 380px; }
+.rpv-label{
+  font-family:"Fredoka",sans-serif; font-weight:500; font-size:.8rem;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--rpv-carne);
+}
+.rpv-campo{
+  display:flex; align-items:center; background:#fff; border:3px solid var(--rpv-carne);
+  border-radius:50px; padding:3px 3px 3px 20px; height:54px;
+}
+.rpv-campo input{
+  flex:1; min-width:0; border:0; background:transparent; font:inherit; font-size:1rem;
+  color:var(--rpv-carne-scuro); padding:.55em 0;
+}
+.rpv-campo input::placeholder{ color:var(--rpv-ferro); opacity:.75; }
+.rpv-campo input:focus-visible{ outline:none; }
+.rpv-campo:focus-within{ outline:3px solid var(--rpv-oro); outline-offset:3px; }
+
+/* pulsanti: forma del kit Elementor del sito (maiuscolo, bordo 3px, raggio 50px) */
+.rpv-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.55em;
+  font-family:"Fredoka",sans-serif; font-weight:700; text-transform:uppercase;
+  font-size:.86rem; letter-spacing:.02em; line-height:1; white-space:nowrap;
+  padding:.95em 1.6em; border-radius:50px; border:3px solid var(--rpv-carne);
+  background:var(--rpv-carne); color:var(--rpv-sabbia); text-decoration:none; cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.rpv-btn:hover{ background:transparent; color:var(--rpv-carne); }
+.rpv-btn--vuoto{ background:transparent; color:var(--rpv-carne); }
+.rpv-btn--vuoto:hover{ background:var(--rpv-carne); color:var(--rpv-sabbia); }
+.rpv-btn--piccolo{ font-size:.72rem; padding:.7em 1.15em; border-width:2px; }
+.rpv-btn svg{ width:1.1em; height:1.1em; fill:currentColor; flex:0 0 auto; }
+.rpv-barra > .rpv-btn{ height:54px; }
+.rpv-campo .rpv-btn{ height:100%; padding:0 1.4em; border:0; }
+.rpv-campo .rpv-btn:hover{ background:var(--rpv-carne-scuro); color:var(--rpv-sabbia); }
+
+.rpv-stato{ min-height:1.5em; margin:0 0 18px; font-size:.98rem; color:var(--rpv-carne-scuro); }
+.rpv-stato b{ font-family:"Fredoka",sans-serif; font-weight:600; }
+.rpv-link{
+  background:none; border:0; padding:0; margin-left:.6em; font:inherit; cursor:pointer;
+  color:var(--rpv-carne); text-decoration:underline; text-underline-offset:3px;
+}
+
+/* ------------------------------------------------------------ lista + mappa */
+.rpv-corpo{
+  display:grid; grid-template-columns:minmax(300px,380px) minmax(0,1fr); gap:20px;
+  height:660px;
+}
+.rpv-lista{
+  list-style:none; margin:0; padding:4px 10px 4px 2px; overflow:auto; display:grid; gap:12px;
+  align-content:start; scrollbar-width:thin; scrollbar-color:var(--rpv-carne-bordo) transparent;
+}
+.rpv-voce{
+  background:#fff; border-radius:20px; padding:18px 20px; box-shadow:var(--rpv-ombra);
+  border:2px solid transparent; cursor:pointer; transition:border-color .2s;
+}
+.rpv-voce:hover{ border-color:var(--rpv-carne-bordo); }
+.rpv-voce[aria-current="true"]{ border-color:var(--rpv-carne); }
+.rpv-voce[hidden]{ display:none; }
+.rpv-voce__testa{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  width:100%; background:none; border:0; padding:0; text-align:left; cursor:pointer;
+  font-family:"Fredoka",sans-serif; color:var(--rpv-carne);
+}
+.rpv-voce__nome{ font-weight:600; font-size:1.12rem; line-height:1.2; }
+.rpv-dist{ font-weight:600; font-size:.95rem; color:var(--rpv-oro-scuro); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.rpv-voce p{ margin:6px 0 0; font-size:.92rem; }
+.rpv-voce__citta{ font-weight:600; color:var(--rpv-carne-scuro); }
+.rpv-voce__tel{ color:var(--rpv-carne-scuro); text-decoration:none; }
+.rpv-voce__tel:hover{ text-decoration:underline; }
+.rpv-voce .rpv-btn{ margin-top:14px; }
+
+.rpv-cluster{
+  display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%;
+  background:var(--rpv-carne); color:var(--rpv-sabbia); border:3px solid var(--rpv-sabbia);
+  font-family:"Fredoka",sans-serif; font-weight:600; font-size:.95rem; box-shadow:0 4px 10px -4px rgba(0,14,30,.5);
+}
+.rpv-altri{ list-style:none; text-align:center; padding:4px 0 8px; }
+.rpv-altri[hidden]{ display:none; }
+.rpv-vuoto{ background:var(--rpv-carne-tenue); border-radius:20px; padding:18px 20px; font-size:.95rem; color:var(--rpv-carne-scuro); }
+
+.rpv-mappa{ border-radius:var(--rpv-radius); overflow:hidden; box-shadow:var(--rpv-ombra); background:#ECE8E2; z-index:0; }
+.rpv-mappa .leaflet-tile-pane{ filter:grayscale(1) sepia(.16) brightness(1.05) contrast(.9); }
+.rpv-mappa .leaflet-control-attribution{ font-size:10px; background:rgba(255,247,241,.85); }
+.rpv-mappa .leaflet-bar a{ color:var(--rpv-carne); }
+
+.rpv-pin{
+  display:block; width:26px; height:26px; background:var(--rpv-carne);
+  border:3px solid var(--rpv-sabbia); border-radius:50% 50% 50% 4px; transform:rotate(-45deg);
+  box-shadow:0 4px 8px -3px rgba(0,14,30,.5); transition:transform .2s,background .2s;
+}
+.rpv-pin--attivo{ background:var(--rpv-oro); border-color:var(--rpv-carne); transform:rotate(-45deg) scale(1.25); }
+.rpv-io{
+  display:block; width:18px; height:18px; border-radius:50%; background:var(--rpv-oro);
+  border:3px solid #fff; box-shadow:0 0 0 6px rgba(215,180,106,.35);
+}
+.rpv .leaflet-popup-content-wrapper{ border-radius:18px; box-shadow:var(--rpv-ombra); }
+.rpv .leaflet-popup-content{ margin:14px 18px; font-family:"Roboto Flex",sans-serif; font-size:.88rem; color:var(--rpv-ferro); }
+.rpv .leaflet-popup-content b{ display:block; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.05rem; color:var(--rpv-carne); }
+.rpv .leaflet-popup-content a{ color:var(--rpv-carne); font-weight:600; }
+
+@container (max-width:820px){
+  .rpv-corpo{ grid-template-columns:1fr; height:auto; }
+  .rpv-mappa{ order:-1; height:min(58vh,420px); }
+  .rpv-lista{ overflow:visible; padding:0; }
+  .rpv-gruppo, .rpv-barra > .rpv-btn{ flex:1 1 100%; }
+}
+</style>
+
+<div class="rpv" id="rpv">
+  <form class="rpv-barra" role="search" id="rpv-form">
+    <div class="rpv-gruppo">
+      <label class="rpv-label" for="rpv-cerca">Inserisci città, provincia o CAP</label>
+      <div class="rpv-campo">
+        <input id="rpv-cerca" type="search" list="rpv-suggerimenti" autocomplete="off" placeholder="Es. Oristano, Nuoro o 07100">
+        <button class="rpv-btn" type="submit">Cerca</button>
+      </div>
+    </div>
+    <button class="rpv-btn rpv-btn--vuoto" type="button" id="rpv-geo">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M444.52 3.52L28.74 195.42c-47.97 22.39-31.98 92.75 19.19 92.75h175.91v175.91c0 51.17 70.36 67.17 92.75 19.19l191.9-415.78c15.99-38.39-25.59-79.97-63.97-63.97z"/></svg>
+      Trova i punti vendita vicino a me
+    </button>
+  </form>
+
+  <p class="rpv-stato" id="rpv-stato" aria-live="polite"></p>
+
+  <div class="rpv-corpo">
+    <ol class="rpv-lista" id="rpv-lista" aria-label="Punti vendita Rossopregio"></ol>
+    <div class="rpv-mappa" id="rpv-mappa" role="region" aria-label="Mappa dei punti vendita Rossopregio"></div>
+  </div>
+  <datalist id="rpv-suggerimenti"></datalist>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* PUNTI VENDITA — generati da src/punti-rossopregio.json */
+  var PUNTI = /*PUNTI*/[];
+
+  /* I 377 comuni della Sardegna: [nome, provincia, lat, lng, [CAP]] */
+  var COMUNI = /*COMUNI*/[];
+
+  var PROVINCE = { CA: 'Cagliari', SU: 'Sud Sardegna', OR: 'Oristano', NU: 'Nuoro', SS: 'Sassari' };
+
+  var radice = document.getElementById('rpv');
+  if (!radice || typeof L === 'undefined') return;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var lista = $('rpv-lista'), stato = $('rpv-stato'), cerca = $('rpv-cerca');
+  var origine = null, nomeOrigine = '', filtroProv = '', segnaIo = null;
+  var vuoto = document.createElement('li');
+  vuoto.className = 'rpv-vuoto';
+  vuoto.hidden = true;
+
+  /* ---------------------------------------------------------- utilità */
+  function norm(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, "'").replace(/\s+/g, ' ').trim();
+  }
+  function distanza(a, b) { // haversine, km
+    var r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lng - a.lng) * r;
+    var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) +
+            Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 12742 * Math.asin(Math.sqrt(h));
+  }
+  function km(d) { return (d < 10 ? d.toFixed(1).replace('.', ',') : Math.round(d)) + ' km'; }
+  function telHref(t) { return 'tel:' + t.replace(/[^\d+]/g, '').replace(/^(?!\+)/, '+39'); }
+  function indicazioni(p) { return 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat + ',' + p.lng; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]; }); }
+  var ICONA_DIR = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M444.52 3.52L28.74 195.42c-47.97 22.39-31.98 92.75 19.19 92.75h175.91v175.91c0 51.17 70.36 67.17 92.75 19.19l191.9-415.78c15.99-38.39-25.59-79.97-63.97-63.97z"/></svg>';
+
+  /* ------------------------------------------------------------- mappa */
+  var mappa = L.map('rpv-mappa', { scrollWheelZoom: false, zoomSnap: 0.25 });
+  mappa.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(mappa);
+  var gruppo = L.markerClusterGroup({
+    showCoverageOnHover: false, maxClusterRadius: 45, spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) {
+      return L.divIcon({ className: '', html: '<span class="rpv-cluster">' + c.getChildCount() + '</span>', iconSize: [40, 40] });
+    }
+  }).addTo(mappa);
+  var PAGINA = 10, mostrati = PAGINA;
+  mappa.on('focus', function () { mappa.scrollWheelZoom.enable(); });
+  mappa.on('blur', function () { mappa.scrollWheelZoom.disable(); });
+
+  var icona = function (on) {
+    return L.divIcon({ className: '', html: '<span class="rpv-pin' + (on ? ' rpv-pin--attivo' : '') + '"></span>',
+                       iconSize: [26, 26], iconAnchor: [13, 30], popupAnchor: [0, -30] });
+  };
+
+  PUNTI.forEach(function (p) {
+    var citta = (p.cap ? p.cap + ' ' : '') + p.comune + ' (' + p.prov + ')';
+    p.marker = L.marker([p.lat, p.lng], { icon: icona(false), title: p.nome, keyboard: true })
+      .bindPopup('<b>' + esc(p.nome) + '</b>' + esc(p.indirizzo) + '<br>' + esc(citta) +
+                 (p.tel ? '<br><a href="' + telHref(p.tel) + '">' + esc(p.tel) + '</a>' : '') +
+                 '<br><a href="' + indicazioni(p) + '" target="_blank" rel="noopener">Indicazioni stradali →</a>')
+      .on('click', function () { seleziona(p.id, 'mappa'); });
+    gruppo.addLayer(p.marker);
+
+    /* scheda in elenco: nome, indirizzo, città e provincia, telefono, indicazioni */
+    var li = document.createElement('li');
+    li.className = 'rpv-voce';
+    li.innerHTML =
+      '<button type="button" class="rpv-voce__testa">' +
+        '<span class="rpv-voce__nome">' + esc(p.nome) + '</span><span class="rpv-dist"></span>' +
+      '</button>' +
+      '<p>' + esc(p.indirizzo) + '<br><span class="rpv-voce__citta">' + esc(citta) + '</span></p>' +
+      (p.tel ? '<p><a class="rpv-voce__tel" href="' + telHref(p.tel) + '">' + esc(p.tel) + '</a></p>' : '') +
+      '<a class="rpv-btn rpv-btn--vuoto rpv-btn--piccolo" href="' + indicazioni(p) + '" target="_blank" rel="noopener">' +
+        ICONA_DIR + 'Indicazioni stradali</a>';
+    li.addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;
+      seleziona(p.id, 'lista');
+    });
+    p.voce = li;
+    lista.appendChild(li);
+  });
+  var altri = document.createElement('li');
+  altri.className = 'rpv-altri';
+  altri.innerHTML = '<button type="button" class="rpv-btn rpv-btn--vuoto rpv-btn--piccolo">Mostra altri punti vendita</button>';
+  altri.querySelector('button').addEventListener('click', function () { mostrati += PAGINA; aggiorna(false, true); });
+  lista.appendChild(vuoto);
+  lista.appendChild(altri);
+
+  /* ------------------------------------------------------ comportamento */
+  function seleziona(id, da) {
+    PUNTI.forEach(function (p) {
+      var on = p.id === id;
+      p.voce.setAttribute('aria-current', on ? 'true' : 'false');
+      p.marker.setIcon(icona(on));
+      p.marker.setZIndexOffset(on ? 1000 : 0);
+      if (!on) return;
+      if (da === 'lista') {
+        gruppo.zoomToShowLayer(p.marker, function () { p.marker.openPopup(); });
+      } else if (da === 'mappa' && getComputedStyle(lista).overflowY === 'auto') {
+        lista.scrollTo({ top: p.voce.offsetTop - lista.offsetTop - 4, behavior: 'smooth' });
+      }
+    });
+  }
+
+  function aggiorna(inquadra, soloLista) {
+    if (!soloLista) mostrati = PAGINA;
+    var vis = PUNTI.filter(function (p) { return !filtroProv || p.prov === filtroProv; });
+    PUNTI.forEach(function (p) {
+      var on = vis.indexOf(p) > -1;
+      if (on && !gruppo.hasLayer(p.marker)) gruppo.addLayer(p.marker);
+      if (!on && gruppo.hasLayer(p.marker)) gruppo.removeLayer(p.marker);
+      p.d = origine ? distanza(origine, p) : null;
+      p.voce.querySelector('.rpv-dist').textContent = p.d == null ? '' : km(p.d);
+    });
+    var ordinati = PUNTI.slice().sort(function (a, b) {
+      return origine ? a.d - b.d : b.lat - a.lat; // senza origine: da nord a sud
+    });
+    ordinati.forEach(function (p) { lista.appendChild(p.voce); });
+    lista.appendChild(vuoto);
+    lista.appendChild(altri);
+    var visOrd = ordinati.filter(function (p) { return vis.indexOf(p) > -1; });
+    PUNTI.forEach(function (p) { var k = visOrd.indexOf(p); p.voce.hidden = k < 0 || k >= mostrati; });
+    altri.hidden = visOrd.length <= mostrati;
+    if (soloLista) return;
+    lista.scrollTop = 0;
+    vuoto.hidden = visOrd.length > 0;
+    vuoto.textContent = 'Nessun punto vendita Rossopregio in questa zona. Prova con un comune vicino o contattaci.';
+
+    if (origine && visOrd.length) {
+      var primo = visOrd[0];
+      stato.innerHTML = 'Il punto vendita più vicino a ' + esc(nomeOrigine) + ' è <b>' + esc(primo.nome) +
+        '</b> a ' + esc(primo.comune) + ', a ' + km(primo.d) + '. <button type="button" class="rpv-link" data-azione="tutti">Mostra tutti</button>';
+      seleziona(primo.id);
+      if (inquadra) {
+        var b = L.latLngBounds([[origine.lat, origine.lng]]);
+        visOrd.slice(0, 3).forEach(function (p) { b.extend([p.lat, p.lng]); });
+        mappa.flyToBounds(b, { padding: [50, 50], maxZoom: 12, duration: .7 });
+      }
+    } else {
+      var n = visOrd.length;
+      stato.innerHTML = '<b>' + n + (n === 1 ? ' punto vendita' : ' punti vendita') + '</b> ' +
+        (filtroProv ? 'in provincia di ' + PROVINCE[filtroProv] : 'in Sardegna') + '.' +
+        (filtroProv ? ' <button type="button" class="rpv-link" data-azione="tutti">Mostra tutti</button>' : '');
+      if (inquadra && n) {
+        mappa.flyToBounds(L.latLngBounds(visOrd.map(function (p) { return [p.lat, p.lng]; })),
+          { padding: [40, 40], maxZoom: 11, duration: .6 });
+      }
+    }
+  }
+
+  function impostaOrigine(lat, lng, nome) {
+    origine = { lat: lat, lng: lng };
+    nomeOrigine = nome;
+    filtroProv = '';
+    if (segnaIo) mappa.removeLayer(segnaIo);
+    segnaIo = L.marker([lat, lng], {
+      icon: L.divIcon({ className: '', html: '<span class="rpv-io"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }),
+      interactive: false, keyboard: false
+    }).addTo(mappa);
+    aggiorna(true);
+  }
+
+  function impostaProvincia(sigla) {
+    origine = null; nomeOrigine = ''; filtroProv = sigla;
+    if (segnaIo) { mappa.removeLayer(segnaIo); segnaIo = null; }
+    mappa.closePopup();
+    PUNTI.forEach(function (p) { p.voce.setAttribute('aria-current', 'false'); p.marker.setIcon(icona(false)); });
+    aggiorna(true);
+  }
+
+  function azzera() { cerca.value = ''; impostaProvincia(''); }
+
+  /* Interpreta il testo: CAP (5 cifre) → comune; «provincia di X» o sigla → provincia;
+     altrimenti nome del comune. Un capoluogo vale come città (es. «Nuoro»). */
+  function interpreta(testo) {
+    var q = norm(testo).replace(/^provincia (di |del )?/, '');
+    if (!q) return null;
+    if (/^\d{5}$/.test(q)) {
+      var perCap = COMUNI.filter(function (c) { return c[4].indexOf(q) > -1; })[0];
+      return perCap ? { tipo: 'comune', c: perCap, etichetta: q + ' ' + perCap[0] } : { tipo: 'nessuno' };
+    }
+    var sigla = Object.keys(PROVINCE).filter(function (s) {
+      return norm(s) === q || (norm(PROVINCE[s]) === q && /^provincia/.test(norm(testo))) || (s === 'SU' && q === 'sud sardegna');
+    })[0];
+    if (sigla) return { tipo: 'provincia', sigla: sigla };
+    var c = COMUNI.filter(function (c) { return norm(c[0]) === q; })[0] ||
+            COMUNI.filter(function (c) { return norm(c[0]).indexOf(q) === 0; })[0] ||
+            COMUNI.filter(function (c) { return norm(c[0]).indexOf(q) > -1; })[0];
+    return c ? { tipo: 'comune', c: c, etichetta: c[0] } : { tipo: 'nessuno' };
+  }
+
+  // suggerimenti mentre si scrive: comuni + province
+  $('rpv-suggerimenti').innerHTML =
+    Object.keys(PROVINCE).map(function (s) { return '<option value="Provincia di ' + PROVINCE[s] + '">'; }).join('') +
+    COMUNI.map(function (c) { return '<option value="' + esc(c[0]) + '">'; }).join('');
+
+  $('rpv-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var r = interpreta(cerca.value);
+    if (!r) { azzera(); return; }
+    if (r.tipo === 'nessuno') {
+      stato.innerHTML = 'Non trovo «' + esc(cerca.value) + '» in Sardegna. Prova con il nome di un comune, una provincia o un CAP.';
+      return;
+    }
+    if (r.tipo === 'provincia') { cerca.value = 'Provincia di ' + PROVINCE[r.sigla]; impostaProvincia(r.sigla); return; }
+    if (!/^\d/.test(r.etichetta)) cerca.value = r.c[0];
+    impostaOrigine(r.c[2], r.c[3], r.etichetta);
+  });
+
+  // geolocalizzazione: solo su richiesta, il browser chiede il permesso
+  $('rpv-geo').addEventListener('click', function () {
+    if (!navigator.geolocation) { stato.textContent = 'Il browser non permette di leggere la posizione: inserisci città, provincia o CAP.'; return; }
+    stato.textContent = 'Cerco la tua posizione…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      cerca.value = '';
+      impostaOrigine(pos.coords.latitude, pos.coords.longitude, 'te');
+    }, function () {
+      stato.textContent = 'Non riesco a leggere la tua posizione. Inserisci città, provincia o CAP nel campo di ricerca.';
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  });
+
+  stato.addEventListener('click', function (e) { if (e.target.closest('[data-azione="tutti"]')) azzera(); });
+
+  // prima vista: tutta la Sardegna
+  mappa.fitBounds(L.latLngBounds(PUNTI.map(function (p) { return [p.lat, p.lng]; })), { padding: [40, 40] });
+  aggiorna(false);
+  // la mappa dentro schede/accordion di Elementor nasce a larghezza zero: ricalcolo quando diventa visibile
+  if ('ResizeObserver' in window) new ResizeObserver(function () { mappa.invalidateSize(); }).observe($('rpv-mappa'));
+})();
+</script>

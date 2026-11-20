@@ -189,3 +189,31 @@ ri-incolla il blocco nel widget HTML.
 - **Comuni per la ricerca**: i 377 comuni sardi con il centro geografico, calcolato dai
   confini ISTAT di openpolis (`src/comuni-sardegna.json`). La ricerca non usa servizi
   esterni; il CAP non è supportato.
+
+---
+
+## Dove trovare Rossopregio (`rossopregio-punti-vendita.html`)
+
+Mockup della sottopagina Rossopregio con il widget «Trova il punto vendita». Testi presi
+alla lettera dalla struttura testuale del cliente (20/11/2026).
+
+- Si rigenera con `python3 src/build-rossopregio.py`. Escono la pagina e
+  `elementor/widget-punti-vendita-rossopregio.html` (blocco per il widget HTML di Elementor).
+- **I punti vendita sono DI ESEMPIO** (`src/punti-rossopregio.json`, «Macelleria di esempio N»).
+  Finché ci sono, la pagina mostra una fascia oro «Mockup». Formato di ogni voce:
+  `id, nome, indirizzo, cap, comune, prov, tel, lat, lng`.
+- Ricerca per città, provincia («Provincia di Nuoro», «SU», «Sud Sardegna») o CAP, sui 377
+  comuni in `src/comuni-sardegna-cap.json` (CAP da matteocontrini/comuni-json). Un capoluogo
+  scritto da solo vale come città.
+- La geolocalizzazione parte solo quando l'utente preme «Trova i punti vendita vicino a me».
+- Le circa 300 macellerie reggono: i pin vicini si raggruppano (Leaflet.markercluster 1.5.3)
+  e l'elenco ne mostra 10 alla volta («Mostra altri punti vendita»).
+- Le illustrazioni sono PNG già tinti color carne (`assets/ill/rp-*-carne.png`): in Elementor
+  sono widget Immagine.
+
+| Blocco | Widget Elementor |
+|---|---|
+| Hero: lockup + titolo + testi + illustrazione | Contenitore a 2 colonne + Immagine + Titolo + Editor di testo + Immagine |
+| Trova il punto vendita | Titolo + Editor di testo + **widget HTML** (il blocco in `elementor/`) |
+| La qualità della carne | Contenitore a 2 colonne + Titolo + Editor di testo + Immagine |
+| Non trovi Rossopregio | Contenitore con sfondo carne + Titolo + Editor di testo + Pulsante |

@@ -1,0 +1,397 @@
+<!-- ======================================================================
+     WIDGET «TROVA IL PUNTO VENDITA» — Rossopregio
+     Blocco unico da incollare in un widget HTML di Elementor.
+     Dipendenze: Leaflet 1.9.4 + Leaflet.markercluster 1.5.3 (cdnjs) + mappa
+     OpenStreetMap. Nessuna chiave API. Con ~300 macellerie i pin vicini si
+     raggruppano e l'elenco ne mostra 10 alla volta.
+     I caratteri Fredoka e Roboto Flex li carica già il sito.
+     Ricerca: città, provincia o CAP (tutto in locale, nessun servizio esterno).
+     Geolocalizzazione: solo quando l'utente preme il pulsante, previa
+     autorizzazione del browser.
+     Per aggiornare i punti vendita: src/punti-rossopregio.json + build.
+     ====================================================================== -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/MarkerCluster.min.css">
+<style>
+.rpv{
+  --rpv-carne:#8D1926; --rpv-carne-scuro:#6B121C; --rpv-carne-tenue:#F6E7E7; --rpv-carne-bordo:#DDB6B8;
+  --rpv-oro:#D7B46A; --rpv-oro-scuro:#957C46; --rpv-sabbia:#FFF7F1; --rpv-ferro:#535A60;
+  --rpv-radius:28px; --rpv-ombra:0 18px 40px -28px rgba(0,14,30,.45);
+  container-type:inline-size;
+  font-family:"Roboto Flex","Roboto",system-ui,sans-serif; color:var(--rpv-ferro);
+  font-size:16px; line-height:1.5;
+}
+.rpv *,.rpv *::before,.rpv *::after{ box-sizing:border-box; }
+.rpv :where(a,button,input):focus-visible{ outline:3px solid var(--rpv-oro); outline-offset:3px; }
+
+/* ----------------------------------------------------------- barra ricerca */
+.rpv-barra{ display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; margin:0 0 14px; }
+.rpv-gruppo{ display:flex; flex-direction:column; gap:6px; flex:1 1 380px; }
+.rpv-label{
+  font-family:"Fredoka",sans-serif; font-weight:500; font-size:.8rem;
+  text-transform:uppercase; letter-spacing:.06em; color:var(--rpv-carne);
+}
+.rpv-campo{
+  display:flex; align-items:center; background:#fff; border:3px solid var(--rpv-carne);
+  border-radius:50px; padding:3px 3px 3px 20px; height:54px;
+}
+.rpv-campo input{
+  flex:1; min-width:0; border:0; background:transparent; font:inherit; font-size:1rem;
+  color:var(--rpv-carne-scuro); padding:.55em 0;
+}
+.rpv-campo input::placeholder{ color:var(--rpv-ferro); opacity:.75; }
+.rpv-campo input:focus-visible{ outline:none; }
+.rpv-campo:focus-within{ outline:3px solid var(--rpv-oro); outline-offset:3px; }
+
+/* pulsanti: forma del kit Elementor del sito (maiuscolo, bordo 3px, raggio 50px) */
+.rpv-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:.55em;
+  font-family:"Fredoka",sans-serif; font-weight:700; text-transform:uppercase;
+  font-size:.86rem; letter-spacing:.02em; line-height:1; white-space:nowrap;
+  padding:.95em 1.6em; border-radius:50px; border:3px solid var(--rpv-carne);
+  background:var(--rpv-carne); color:var(--rpv-sabbia); text-decoration:none; cursor:pointer;
+  transition:background .2s,color .2s;
+}
+.rpv-btn:hover{ background:transparent; color:var(--rpv-carne); }
+.rpv-btn--vuoto{ background:transparent; color:var(--rpv-carne); }
+.rpv-btn--vuoto:hover{ background:var(--rpv-carne); color:var(--rpv-sabbia); }
+.rpv-btn--piccolo{ font-size:.72rem; padding:.7em 1.15em; border-width:2px; }
+.rpv-btn svg{ width:1.1em; height:1.1em; fill:currentColor; flex:0 0 auto; }
+.rpv-barra > .rpv-btn{ height:54px; }
+.rpv-campo .rpv-btn{ height:100%; padding:0 1.4em; border:0; }
+.rpv-campo .rpv-btn:hover{ background:var(--rpv-carne-scuro); color:var(--rpv-sabbia); }
+
+.rpv-stato{ min-height:1.5em; margin:0 0 18px; font-size:.98rem; color:var(--rpv-carne-scuro); }
+.rpv-stato b{ font-family:"Fredoka",sans-serif; font-weight:600; }
+.rpv-link{
+  background:none; border:0; padding:0; margin-left:.6em; font:inherit; cursor:pointer;
+  color:var(--rpv-carne); text-decoration:underline; text-underline-offset:3px;
+}
+
+/* ------------------------------------------------------------ lista + mappa */
+.rpv-corpo{
+  display:grid; grid-template-columns:minmax(300px,380px) minmax(0,1fr); gap:20px;
+  height:660px;
+}
+.rpv-lista{
+  list-style:none; margin:0; padding:4px 10px 4px 2px; overflow:auto; display:grid; gap:12px;
+  align-content:start; scrollbar-width:thin; scrollbar-color:var(--rpv-carne-bordo) transparent;
+}
+.rpv-voce{
+  background:#fff; border-radius:20px; padding:18px 20px; box-shadow:var(--rpv-ombra);
+  border:2px solid transparent; cursor:pointer; transition:border-color .2s;
+}
+.rpv-voce:hover{ border-color:var(--rpv-carne-bordo); }
+.rpv-voce[aria-current="true"]{ border-color:var(--rpv-carne); }
+.rpv-voce[hidden]{ display:none; }
+.rpv-voce__testa{
+  display:flex; align-items:baseline; justify-content:space-between; gap:12px;
+  width:100%; background:none; border:0; padding:0; text-align:left; cursor:pointer;
+  font-family:"Fredoka",sans-serif; color:var(--rpv-carne);
+}
+.rpv-voce__nome{ font-weight:600; font-size:1.12rem; line-height:1.2; }
+.rpv-dist{ font-weight:600; font-size:.95rem; color:var(--rpv-oro-scuro); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.rpv-voce p{ margin:6px 0 0; font-size:.92rem; }
+.rpv-voce__citta{ font-weight:600; color:var(--rpv-carne-scuro); }
+.rpv-voce__tel{ color:var(--rpv-carne-scuro); text-decoration:none; }
+.rpv-voce__tel:hover{ text-decoration:underline; }
+.rpv-voce .rpv-btn{ margin-top:14px; }
+
+.rpv-cluster{
+  display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%;
+  background:var(--rpv-carne); color:var(--rpv-sabbia); border:3px solid var(--rpv-sabbia);
+  font-family:"Fredoka",sans-serif; font-weight:600; font-size:.95rem; box-shadow:0 4px 10px -4px rgba(0,14,30,.5);
+}
+.rpv-altri{ list-style:none; text-align:center; padding:4px 0 8px; }
+.rpv-altri[hidden]{ display:none; }
+.rpv-vuoto{ background:var(--rpv-carne-tenue); border-radius:20px; padding:18px 20px; font-size:.95rem; color:var(--rpv-carne-scuro); }
+
+.rpv-mappa{ border-radius:var(--rpv-radius); overflow:hidden; box-shadow:var(--rpv-ombra); background:#ECE8E2; z-index:0; }
+.rpv-mappa .leaflet-tile-pane{ filter:grayscale(1) sepia(.16) brightness(1.05) contrast(.9); }
+.rpv-mappa .leaflet-control-attribution{ font-size:10px; background:rgba(255,247,241,.85); }
+.rpv-mappa .leaflet-bar a{ color:var(--rpv-carne); }
+
+.rpv-pin{
+  display:block; width:26px; height:26px; background:var(--rpv-carne);
+  border:3px solid var(--rpv-sabbia); border-radius:50% 50% 50% 4px; transform:rotate(-45deg);
+  box-shadow:0 4px 8px -3px rgba(0,14,30,.5); transition:transform .2s,background .2s;
+}
+.rpv-pin--attivo{ background:var(--rpv-oro); border-color:var(--rpv-carne); transform:rotate(-45deg) scale(1.25); }
+.rpv-io{
+  display:block; width:18px; height:18px; border-radius:50%; background:var(--rpv-oro);
+  border:3px solid #fff; box-shadow:0 0 0 6px rgba(215,180,106,.35);
+}
+.rpv .leaflet-popup-content-wrapper{ border-radius:18px; box-shadow:var(--rpv-ombra); }
+.rpv .leaflet-popup-content{ margin:14px 18px; font-family:"Roboto Flex",sans-serif; font-size:.88rem; color:var(--rpv-ferro); }
+.rpv .leaflet-popup-content b{ display:block; font-family:"Fredoka",sans-serif; font-weight:600; font-size:1.05rem; color:var(--rpv-carne); }
+.rpv .leaflet-popup-content a{ color:var(--rpv-carne); font-weight:600; }
+
+@container (max-width:820px){
+  .rpv-corpo{ grid-template-columns:1fr; height:auto; }
+  .rpv-mappa{ order:-1; height:min(58vh,420px); }
+  .rpv-lista{ overflow:visible; padding:0; }
+  .rpv-gruppo, .rpv-barra > .rpv-btn{ flex:1 1 100%; }
+}
+</style>
+
+<div class="rpv" id="rpv">
+  <form class="rpv-barra" role="search" id="rpv-form">
+    <div class="rpv-gruppo">
+      <label class="rpv-label" for="rpv-cerca">Inserisci città, provincia o CAP</label>
+      <div class="rpv-campo">
+        <input id="rpv-cerca" type="search" list="rpv-suggerimenti" autocomplete="off" placeholder="Es. Oristano, Nuoro o 07100">
+        <button class="rpv-btn" type="submit">Cerca</button>
+      </div>
+    </div>
+    <button class="rpv-btn rpv-btn--vuoto" type="button" id="rpv-geo">
+      <svg viewBox="0 0 512 512" aria-hidden="true"><path d="M444.52 3.52L28.74 195.42c-47.97 22.39-31.98 92.75 19.19 92.75h175.91v175.91c0 51.17 70.36 67.17 92.75 19.19l191.9-415.78c15.99-38.39-25.59-79.97-63.97-63.97z"/></svg>
+      Trova i punti vendita vicino a me
+    </button>
+  </form>
+
+  <p class="rpv-stato" id="rpv-stato" aria-live="polite"></p>
+
+  <div class="rpv-corpo">
+    <ol class="rpv-lista" id="rpv-lista" aria-label="Punti vendita Rossopregio"></ol>
+    <div class="rpv-mappa" id="rpv-mappa" role="region" aria-label="Mappa dei punti vendita Rossopregio"></div>
+  </div>
+  <datalist id="rpv-suggerimenti"></datalist>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.5.3/leaflet.markercluster.min.js"></script>
+<script>
+(function () {
+  'use strict';
+
+  /* PUNTI VENDITA — generati da src/punti-rossopregio.json */
+  var PUNTI = [{"id":"pv01","nome":"Macelleria di esempio 1","indirizzo":"Via di esempio, 1","cap":"09121","comune":"Cagliari","prov":"CA","tel":"070 000 0001","lat":39.2245,"lng":9.0882},{"id":"pv02","nome":"Macelleria di esempio 2","indirizzo":"Via di esempio, 2","cap":"09121","comune":"Cagliari","prov":"CA","tel":"070 000 0002","lat":39.2305,"lng":9.0962},{"id":"pv03","nome":"Macelleria di esempio 3","indirizzo":"Via di esempio, 3","cap":"09045","comune":"Quartu Sant'Elena","prov":"CA","tel":"070 000 0003","lat":39.2268,"lng":9.2923},{"id":"pv04","nome":"Macelleria di esempio 4","indirizzo":"Via di esempio, 4","cap":"09032","comune":"Assemini","prov":"CA","tel":"070 000 0004","lat":39.2614,"lng":9.0089},{"id":"pv05","nome":"Macelleria di esempio 5","indirizzo":"Via di esempio, 5","cap":"09016","comune":"Iglesias","prov":"SU","tel":"070 000 0005","lat":39.3182,"lng":8.5195},{"id":"pv06","nome":"Macelleria di esempio 6","indirizzo":"Via di esempio, 6","cap":"09013","comune":"Carbonia","prov":"SU","tel":"070 000 0006","lat":39.2017,"lng":8.5239},{"id":"pv07","nome":"Macelleria di esempio 7","indirizzo":"Via di esempio, 7","cap":"09025","comune":"Sanluri","prov":"SU","tel":"070 000 0007","lat":39.5472,"lng":8.8787},{"id":"pv08","nome":"Macelleria di esempio 8","indirizzo":"Via di esempio, 8","cap":"09039","comune":"Villacidro","prov":"SU","tel":"070 000 0008","lat":39.4434,"lng":8.7344},{"id":"pv09","nome":"Macelleria di esempio 9","indirizzo":"Via di esempio, 9","cap":"09043","comune":"Muravera","prov":"SU","tel":"070 000 0009","lat":39.3431,"lng":9.5759},{"id":"pv10","nome":"Macelleria di esempio 10","indirizzo":"Via di esempio, 10","cap":"09170","comune":"Oristano","prov":"OR","tel":"0783 000 0010","lat":39.9093,"lng":8.6141},{"id":"pv11","nome":"Macelleria di esempio 11","indirizzo":"Via di esempio, 11","cap":"09170","comune":"Oristano","prov":"OR","tel":"0783 000 0011","lat":39.9153,"lng":8.6221},{"id":"pv12","nome":"Macelleria di esempio 12","indirizzo":"Via di esempio, 12","cap":"09092","comune":"Arborea","prov":"OR","tel":"0783 000 0012","lat":39.7721,"lng":8.5758},{"id":"pv13","nome":"Macelleria di esempio 13","indirizzo":"Via di esempio, 13","cap":"09098","comune":"Terralba","prov":"OR","tel":"0783 000 0013","lat":39.715,"lng":8.5955},{"id":"pv14","nome":"Macelleria di esempio 14","indirizzo":"Via di esempio, 14","cap":"09074","comune":"Ghilarza","prov":"OR","tel":"0783 000 0014","lat":40.0875,"lng":8.8359},{"id":"pv15","nome":"Macelleria di esempio 15","indirizzo":"Via di esempio, 15","cap":"08015","comune":"Macomer","prov":"NU","tel":"0784 000 0015","lat":40.292,"lng":8.7592},{"id":"pv16","nome":"Macelleria di esempio 16","indirizzo":"Via di esempio, 16","cap":"08100","comune":"Nuoro","prov":"NU","tel":"0784 000 0016","lat":40.3394,"lng":9.2995},{"id":"pv17","nome":"Macelleria di esempio 17","indirizzo":"Via di esempio, 17","cap":"08029","comune":"Siniscola","prov":"NU","tel":"0784 000 0017","lat":40.5416,"lng":9.7166},{"id":"pv18","nome":"Macelleria di esempio 18","indirizzo":"Via di esempio, 18","cap":"08048","comune":"Tortolì","prov":"NU","tel":"0784 000 0018","lat":39.9146,"lng":9.6643},{"id":"pv19","nome":"Macelleria di esempio 19","indirizzo":"Via di esempio, 19","cap":"07100","comune":"Sassari","prov":"SS","tel":"079 000 0019","lat":40.7447,"lng":8.3643},{"id":"pv20","nome":"Macelleria di esempio 20","indirizzo":"Via di esempio, 20","cap":"07100","comune":"Sassari","prov":"SS","tel":"079 000 0020","lat":40.7507,"lng":8.3723},{"id":"pv21","nome":"Macelleria di esempio 21","indirizzo":"Via di esempio, 21","cap":"07041","comune":"Alghero","prov":"SS","tel":"079 000 0021","lat":40.5998,"lng":8.299},{"id":"pv22","nome":"Macelleria di esempio 22","indirizzo":"Via di esempio, 22","cap":"07046","comune":"Porto Torres","prov":"SS","tel":"079 000 0022","lat":41.0552,"lng":8.2796},{"id":"pv23","nome":"Macelleria di esempio 23","indirizzo":"Via di esempio, 23","cap":"07014","comune":"Ozieri","prov":"SS","tel":"079 000 0023","lat":40.6354,"lng":8.9528},{"id":"pv24","nome":"Macelleria di esempio 24","indirizzo":"Via di esempio, 24","cap":"07026","comune":"Olbia","prov":"SS","tel":"079 000 0024","lat":40.9516,"lng":9.4785},{"id":"pv25","nome":"Macelleria di esempio 25","indirizzo":"Via di esempio, 25","cap":"07029","comune":"Tempio Pausania","prov":"SS","tel":"079 000 0025","lat":40.9023,"lng":9.1026}];
+
+  /* I 377 comuni della Sardegna: [nome, provincia, lat, lng, [CAP]] */
+  var COMUNI = [["Abbasanta","OR",40.1402,8.7701,["09071"]],["Aggius","SS",40.9677,9.0279,["07020"]],["Aglientu","SS",41.0959,9.1081,["07020"]],["Aidomaggiore","OR",40.1789,8.8468,["09070"]],["Alà dei Sardi","SS",40.6787,9.343,["07020"]],["Albagiara","OR",39.801,8.8739,["09090"]],["Ales","OR",39.774,8.8049,["09091"]],["Alghero","SS",40.5998,8.299,["07041"]],["Allai","OR",39.9493,8.856,["09080"]],["Anela","SS",40.4531,9.0318,["07010"]],["Arborea","OR",39.7721,8.5758,["09092"]],["Arbus","SU",39.5742,8.4986,["09031"]],["Ardara","SS",40.6289,8.8214,["07010"]],["Ardauli","OR",40.0827,8.9149,["09081"]],["Aritzo","NU",39.9402,9.2032,["08031"]],["Armungia","SU",39.5381,9.4148,["09040"]],["Arzachena","SS",41.0908,9.4115,["07021"]],["Arzana","NU",39.9357,9.4165,["08040"]],["Assemini","CA",39.2614,9.0089,["09032"]],["Assolo","OR",39.8103,8.9076,["09080"]],["Asuni","OR",39.872,8.9485,["09080"]],["Atzara","NU",39.9766,9.059,["08030"]],["Austis","NU",40.0838,9.0622,["08030"]],["Badesi","SS",40.9563,8.88,["07030"]],["Ballao","SU",39.5738,9.3823,["09040"]],["Banari","SS",40.5798,8.6757,["07040"]],["Baradili","OR",39.7263,8.8946,["09090"]],["Baratili San Pietro","OR",39.9826,8.5688,["09070"]],["Baressa","OR",39.7131,8.8701,["09090"]],["Bari Sardo","NU",39.8372,9.655,["08042"]],["Barrali","SU",39.476,9.1051,["09040"]],["Barumini","SU",39.6936,9.0171,["09021"]],["Bauladu","OR",40.0242,8.6824,["09070"]],["Baunei","NU",40.0991,9.6317,["08040"]],["Belvì","NU",39.9689,9.1562,["08030"]],["Benetutti","SS",40.4301,9.1657,["07010"]],["Berchidda","SS",40.7906,9.2082,["07022"]],["Bessude","SS",40.5533,8.6763,["07040"]],["Bidonì","OR",40.1312,8.9373,["09080"]],["Birori","NU",40.2528,8.8223,["08010"]],["Bitti","NU",40.5458,9.3918,["08021"]],["Bolotana","NU",40.3208,8.9482,["08011"]],["Bonarcado","OR",40.0967,8.6618,["09070"]],["Bonnanaro","SS",40.5444,8.7766,["07043"]],["Bono","SS",40.4164,9.0378,["07011"]],["Bonorva","SS",40.43,8.838,["07012"]],["Boroneddu","OR",40.108,8.8676,["09080"]],["Borore","NU",40.2141,8.7812,["08016"]],["Bortigali","NU",40.3054,8.8271,["08012"]],["Bortigiadas","SS",40.8809,8.9924,["07030"]],["Borutta","SS",40.5259,8.7432,["07040"]],["Bosa","OR",40.344,8.4783,["09089"]],["Bottidda","SS",40.3947,9.0186,["07010"]],["Buddusò","SS",40.5983,9.2601,["07020"]],["Budoni","SS",40.7045,9.6845,["07051"]],["Buggerru","SU",39.4019,8.4335,["09010"]],["Bultei","SS",40.4877,9.083,["07010"]],["Bulzi","SS",40.8557,8.8502,["07030"]],["Burcei","SU",39.3608,9.4013,["09040"]],["Burgos","SS",40.4,8.9816,["07010"]],["Busachi","OR",40.0094,8.8855,["09082"]],["Cabras","OR",39.9346,8.4666,["09072"]],["Cagliari","CA",39.2245,9.0882,["09121","09122","09123","09124","09125","09126","09127","09128","09129","09130","09131","09132","09133","09134"]],["Calangianus","SS",40.9061,9.242,["07023"]],["Calasetta","SU",39.0743,8.3796,["09011"]],["Capoterra","CA",39.1464,8.9694,["09012"]],["Carbonia","SU",39.2017,8.5239,["09013"]],["Cardedu","NU",39.7712,9.639,["08040"]],["Cargeghe","SS",40.6776,8.6378,["07030"]],["Carloforte","SU",39.1406,8.2756,["09014"]],["Castelsardo","SS",40.8931,8.7191,["07031"]],["Castiadas","SU",39.243,9.5193,["09040"]],["Cheremule","SS",40.4894,8.7189,["07040"]],["Chiaramonti","SS",40.7329,8.846,["07030"]],["Codrongianos","SS",40.6672,8.6892,["07040"]],["Collinas","SU",39.6474,8.8298,["09020"]],["Cossoine","SS",40.4431,8.6762,["07010"]],["Cuglieri","OR",40.1498,8.5297,["09073"]],["Curcuris","OR",39.7482,8.8292,["09090"]],["Decimomannu","CA",39.3217,8.9684,["09033"]],["Decimoputzu","SU",39.3419,8.8825,["09010"]],["Desulo","NU",40.009,9.2541,["08032"]],["Dolianova","SU",39.3944,9.2195,["09041"]],["Domus de Maria","SU",38.954,8.859,["09010"]],["Domusnovas","SU",39.3648,8.6216,["09015"]],["Donori","SU",39.4413,9.134,["09040"]],["Dorgali","NU",40.2961,9.5566,["08022"]],["Dualchi","NU",40.2324,8.8887,["08010"]],["Elini","NU",39.9023,9.6228,["08040"]],["Elmas","CA",39.2628,9.0531,["09067"]],["Erula","SS",40.7839,8.9389,["07030"]],["Escalaplano","SU",39.6349,9.3555,["09051"]],["Escolca","SU",39.6905,9.1297,["09052"]],["Esporlatu","SS",40.3802,8.9807,["07010"]],["Esterzili","SU",39.7424,9.3177,["09053"]],["Florinas","SS",40.626,8.6553,["07030"]],["Fluminimaggiore","SU",39.4296,8.5077,["09010"]],["Flussio","OR",40.2526,8.5506,["09090"]],["Fonni","NU",40.0986,9.2838,["08023"]],["Fordongianus","OR",39.9917,8.8142,["09083"]],["Furtei","SU",39.5574,8.951,["09040"]],["Gadoni","NU",39.887,9.1739,["08030"]],["Gairo","NU",39.8691,9.4728,["08040"]],["Galtellì","NU",40.3822,9.5873,["08020"]],["Gavoi","NU",40.1529,9.2161,["08020"]],["Genoni","SU",39.7909,8.9734,["09054"]],["Genuri","SU",39.7403,8.923,["09020"]],["Gergei","SU",39.6953,9.0794,["09055"]],["Gesico","SU",39.6201,9.0888,["09040"]],["Gesturi","SU",39.7446,9.0106,["09020"]],["Ghilarza","OR",40.0875,8.8359,["09074"]],["Giave","SS",40.4638,8.7242,["07010"]],["Giba","SU",39.0621,8.6002,["09010"]],["Girasole","NU",39.9537,9.6445,["08040"]],["Golfo Aranci","SS",40.9878,9.5735,["07020"]],["Goni","SU",39.5739,9.2825,["09040"]],["Gonnesa","SU",39.2593,8.4466,["09010"]],["Gonnoscodina","OR",39.7,8.8393,["09090"]],["Gonnosfanadiga","SU",39.4885,8.6446,["09035"]],["Gonnosnò","OR",39.7602,8.8699,["09090"]],["Gonnostramatza","OR",39.6756,8.8257,["09093"]],["Guamaggiore","SU",39.5855,9.0655,["09040"]],["Guasila","SU",39.5633,9.0298,["09040"]],["Guspini","SU",39.6068,8.6084,["09036"]],["Iglesias","SU",39.3182,8.5195,["09016"]],["Ilbono","NU",39.886,9.5923,["08040"]],["Illorai","SS",40.3566,8.9891,["07010"]],["Irgoli","NU",40.4668,9.6435,["08020"]],["Isili","SU",39.7681,9.1298,["09056"]],["Ittireddu","SS",40.5323,8.9034,["07010"]],["Ittiri","SS",40.5869,8.5562,["07044"]],["Jerzu","NU",39.7668,9.5386,["08044"]],["La Maddalena","SS",41.233,9.4111,["07024"]],["Laconi","OR",39.8615,9.049,["09090"]],["Laerru","SS",40.8123,8.8415,["07030"]],["Lanusei","NU",39.8509,9.561,["08045"]],["Las Plassas","SU",39.6749,8.979,["09020"]],["Lei","NU",40.3133,8.9155,["08010"]],["Loceri","NU",39.8485,9.5987,["08040"]],["Loculi","NU",40.4287,9.5816,["08020"]],["Lodè","NU",40.5845,9.5641,["08020"]],["Lodine","NU",40.1467,9.2314,["08020"]],["Loiri Porto San Paolo","SS",40.8353,9.5591,["07020"]],["Lotzorai","NU",39.9757,9.6529,["08040"]],["Lula","NU",40.4676,9.5042,["08020"]],["Lunamatrona","SU",39.6369,8.9026,["09022"]],["Luogosanto","SS",41.0653,9.2125,["07020"]],["Luras","SS",40.9815,9.1909,["07025"]],["Macomer","NU",40.292,8.7592,["08015"]],["Magomadas","OR",40.2586,8.5129,["09090"]],["Mamoiada","NU",40.2101,9.2767,["08024"]],["Mandas","SU",39.648,9.1296,["09040"]],["Mara","SS",40.4378,8.6357,["07010"]],["Maracalagonis","CA",39.233,9.3721,["09069"]],["Marrubiu","OR",39.7768,8.6697,["09094"]],["Martis","SS",40.7834,8.8241,["07030"]],["Masainas","SU",39.036,8.6151,["09010"]],["Masullas","OR",39.7066,8.7671,["09090"]],["Meana Sardo","NU",39.9274,9.0679,["08030"]],["Milis","OR",40.0484,8.6405,["09070"]],["Modolo","OR",40.2803,8.5309,["09090"]],["Mogorella","OR",39.8699,8.8586,["09080"]],["Mogoro","OR",39.6649,8.7461,["09095"]],["Monastir","SU",39.3835,9.0439,["09023"]],["Monserrato","CA",39.2659,9.1333,["09042"]],["Monteleone Rocca Doria","SS",40.4714,8.5549,["07010"]],["Monti","SS",40.7966,9.3568,["07020"]],["Montresta","OR",40.3883,8.5046,["09090"]],["Mores","SS",40.5566,8.8462,["07013"]],["Morgongiori","OR",39.755,8.7439,["09090"]],["Muravera","SU",39.3431,9.5759,["09043"]],["Muros","SS",40.6961,8.6173,["07030"]],["Musei","SU",39.2986,8.6894,["09010"]],["Narbolia","OR",40.0482,8.54,["09070"]],["Narcao","SU",39.1905,8.6781,["09010"]],["Neoneli","OR",40.065,8.9812,["09080"]],["Noragugume","NU",40.2289,8.9546,["08010"]],["Norbello","OR",40.1619,8.8003,["09070"]],["Nughedu San Nicolò","SS",40.5261,8.9858,["07010"]],["Nughedu Santa Vittoria","OR",40.1112,8.9843,["09080"]],["Nule","SS",40.4836,9.2198,["07010"]],["Nulvi","SS",40.7973,8.7553,["07032"]],["Nuoro","NU",40.3394,9.2995,["08100"]],["Nurachi","OR",39.967,8.542,["09070"]],["Nuragus","SU",39.7734,9.045,["09057"]],["Nurallao","SU",39.8056,9.0955,["09058"]],["Nuraminis","SU",39.4409,9.0135,["09024"]],["Nureci","OR",39.8103,8.9636,["09080"]],["Nurri","SU",39.7089,9.2159,["09059"]],["Nuxis","SU",39.1486,8.7619,["09010"]],["Olbia","SS",40.9516,9.4785,["07026"]],["Oliena","NU",40.2926,9.4448,["08025"]],["Ollastra","OR",39.9593,8.7573,["09088"]],["Ollolai","NU",40.171,9.1808,["08020"]],["Olmedo","SS",40.6507,8.3836,["07040"]],["Olzai","NU",40.1725,9.0877,["08020"]],["Onanì","NU",40.5333,9.4516,["08020"]],["Onifai","NU",40.4381,9.6926,["08020"]],["Oniferi","NU",40.3044,9.1622,["08020"]],["Orani","NU",40.2766,9.1725,["08026"]],["Orgosolo","NU",40.1773,9.3854,["08027"]],["Oristano","OR",39.9093,8.6141,["09170"]],["Orosei","NU",40.4059,9.7239,["08028"]],["Orotelli","NU",40.3169,9.1048,["08020"]],["Orroli","SU",39.6519,9.2604,["09061"]],["Ortacesus","SU",39.5233,9.0884,["09040"]],["Ortueri","NU",40.0207,8.9881,["08036"]],["Orune","NU",40.4183,9.329,["08020"]],["Oschiri","SS",40.7271,9.1017,["07027"]],["Osidda","NU",40.5213,9.2307,["08020"]],["Osilo","SS",40.7613,8.6763,["07033"]],["Osini","NU",39.8289,9.4739,["08040"]],["Ossi","SS",40.6544,8.6035,["07045"]],["Ottana","NU",40.2267,9.0384,["08020"]],["Ovodda","NU",40.0967,9.1787,["08020"]],["Ozieri","SS",40.6354,8.9528,["07014"]],["Pabillonis","SU",39.6079,8.7117,["09030"]],["Padria","SS",40.4029,8.5899,["07015"]],["Padru","SS",40.7216,9.5101,["07020"]],["Palau","SS",41.1682,9.3563,["07020"]],["Palmas Arborea","OR",39.8538,8.6905,["09090"]],["Pattada","SS",40.5914,9.1221,["07016"]],["Pau","OR",39.8007,8.7798,["09090"]],["Pauli Arbarei","SU",39.6613,8.9326,["09020"]],["Paulilatino","OR",40.0693,8.7467,["09070"]],["Perdasdefogu","NU",39.6682,9.4539,["08046"]],["Perdaxius","SU",39.1597,8.6181,["09010"]],["Perfugas","SS",40.8325,8.9306,["07034"]],["Pimentel","SU",39.4983,9.0659,["09020"]],["Piscinas","SU",39.0693,8.6663,["09010"]],["Ploaghe","SS",40.6775,8.755,["07017"]],["Pompu","OR",39.7281,8.7968,["09093"]],["Porto Torres","SS",41.0552,8.2796,["07046"]],["Portoscuso","SU",39.2012,8.4117,["09010"]],["Posada","NU",40.644,9.7155,["08020"]],["Pozzomaggiore","SS",40.3611,8.6473,["07018"]],["Pula","CA",39.0076,8.9229,["09050"]],["Putifigari","SS",40.5696,8.4453,["07040"]],["Quartu Sant'Elena","CA",39.2268,9.2923,["09045"]],["Quartucciu","CA",39.2533,9.3047,["09044"]],["Riola Sardo","OR",39.9917,8.4923,["09070"]],["Romana","SS",40.4861,8.5796,["07010"]],["Ruinas","OR",39.9058,8.8866,["09085"]],["Sadali","SU",39.8046,9.2515,["09062"]],["Sagama","OR",40.2621,8.5926,["09090"]],["Samassi","SU",39.4883,8.9071,["09030"]],["Samatzai","SU",39.4835,9.0433,["09020"]],["Samugheo","OR",39.9482,8.9484,["09086"]],["San Basilio","SU",39.5195,9.2094,["09040"]],["San Gavino Monreale","SU",39.5504,8.7773,["09037"]],["San Giovanni Suergiu","SU",39.1096,8.5066,["09010"]],["San Nicolò d'Arcidano","OR",39.6668,8.6532,["09097"]],["San Nicolò Gerrei","SU",39.479,9.294,["09040"]],["San Sperate","SU",39.3524,9.0136,["09026"]],["San Teodoro","SS",40.7743,9.639,["07052"]],["San Vero Milis","OR",40.0259,8.4479,["09070"]],["San Vito","SU",39.4143,9.5032,["09040"]],["Sanluri","SU",39.5472,8.8787,["09025"]],["Sant'Andrea Frius","SU",39.4754,9.1859,["09040"]],["Sant'Anna Arresi","SU",38.9951,8.6125,["09010"]],["Sant'Antioco","SU",39.033,8.429,["09017"]],["Sant'Antonio di Gallura","SS",40.9775,9.3264,["07030"]],["Santa Giusta","OR",39.8447,8.629,["09096"]],["Santa Maria Coghinas","SS",40.894,8.8692,["07030"]],["Santa Teresa Gallura","SS",41.2029,9.2263,["07028"]],["Santadi","SU",39.0817,8.7598,["09010"]],["Santu Lussurgiu","OR",40.1583,8.666,["09075"]],["Sardara","SU",39.6087,8.8076,["09030"]],["Sarroch","CA",39.0788,8.9797,["09018"]],["Sarule","NU",40.2161,9.1395,["08020"]],["Sassari","SS",40.7447,8.3643,["07100"]],["Scano di Montiferro","OR",40.2227,8.6198,["09078"]],["Sedilo","OR",40.1809,8.9402,["09076"]],["Sedini","SS",40.8643,8.8014,["07035"]],["Segariu","SU",39.5698,8.9841,["09040"]],["Selargius","CA",39.2797,9.1402,["09047"]],["Selegas","SU",39.5783,9.1033,["09040"]],["Semestene","SS",40.3745,8.7168,["07010"]],["Seneghe","OR",40.0872,8.5878,["09070"]],["Senis","OR",39.8299,8.9371,["09080"]],["Sennariolo","OR",40.2164,8.5346,["09078"]],["Sennori","SS",40.8005,8.6227,["07036"]],["Senorbì","SU",39.5272,9.1437,["09040"]],["Serdiana","SU",39.3937,9.1519,["09040"]],["Serramanna","SU",39.4353,8.8961,["09038"]],["Serrenti","SU",39.5,8.9724,["09027"]],["Serri","SU",39.7048,9.1539,["09063"]],["Sestu","CA",39.316,9.0835,["09028"]],["Settimo San Pietro","CA",39.3078,9.1678,["09060"]],["Setzu","SU",39.734,8.9404,["09029"]],["Seui","SU",39.8471,9.3442,["09064"]],["Seulo","SU",39.8754,9.2334,["09065"]],["Siamaggiore","OR",39.9527,8.6328,["09070"]],["Siamanna","OR",39.9097,8.7782,["09080"]],["Siapiccia","OR",39.9354,8.7822,["09080"]],["Siddi","SU",39.6722,8.8831,["09020"]],["Silanus","NU",40.29,8.897,["08017"]],["Siligo","SS",40.5943,8.7409,["07040"]],["Siliqua","SU",39.2627,8.792,["09010"]],["Silius","SU",39.5363,9.2937,["09040"]],["Simala","OR",39.7266,8.8325,["09090"]],["Simaxis","OR",39.9235,8.701,["09088"]],["Sindia","NU",40.2884,8.6744,["08018"]],["Sini","OR",39.754,8.9018,["09090"]],["Siniscola","NU",40.5416,9.7166,["08029"]],["Sinnai","CA",39.3265,9.3215,["09048"]],["Siris","OR",39.7207,8.7679,["09090"]],["Siurgus Donigala","SU",39.5899,9.2123,["09040"]],["Soddì","OR",40.1349,8.8758,["09080"]],["Solarussa","OR",39.9715,8.6816,["09077"]],["Soleminis","SU",39.3433,9.1767,["09040"]],["Sorgono","NU",40.0177,9.0802,["08038"]],["Sorradile","OR",40.1511,8.9908,["09080"]],["Sorso","SS",40.8202,8.5777,["07037"]],["Stintino","SS",40.8893,8.227,["07040"]],["Suelli","SU",39.5742,9.1376,["09040"]],["Suni","OR",40.3083,8.5768,["09090"]],["Tadasuni","OR",40.1061,8.8851,["09080"]],["Talana","NU",40.0311,9.4977,["08040"]],["Telti","SS",40.8955,9.3575,["07020"]],["Tempio Pausania","SS",40.9023,9.1026,["07029"]],["Tergu","SS",40.8552,8.7061,["07030"]],["Terralba","OR",39.715,8.5955,["09098"]],["Tertenia","NU",39.6858,9.5957,["08047"]],["Teti","NU",40.1202,9.0988,["08030"]],["Teulada","SU",38.9698,8.7276,["09019"]],["Thiesi","SS",40.5191,8.6551,["07047"]],["Tiana","NU",40.0666,9.1514,["08020"]],["Tinnura","OR",40.2698,8.5625,["09090"]],["Tissi","SS",40.6679,8.5656,["07040"]],["Tonara","NU",40.0217,9.1709,["08039"]],["Torpè","NU",40.6523,9.625,["08020"]],["Torralba","SS",40.4982,8.7918,["07048"]],["Tortolì","NU",39.9146,9.6643,["08048"]],["Tramatza","OR",39.9983,8.6455,["09070"]],["Tratalias","SU",39.1161,8.5787,["09010"]],["Tresnuraghes","OR",40.2254,8.4933,["09079"]],["Triei","NU",40.0158,9.6315,["08040"]],["Trinità d'Agultu e Vignola","SS",41.0265,8.9656,["07038"]],["Tuili","SU",39.714,8.9636,["09029"]],["Tula","SS",40.7437,8.9898,["07010"]],["Turri","SU",39.7029,8.9228,["09020"]],["Ulà Tirso","OR",40.0452,8.8999,["09080"]],["Ulassai","NU",39.7303,9.4762,["08040"]],["Uras","OR",39.7055,8.6924,["09099"]],["Uri","SS",40.6338,8.4668,["07040"]],["Urzulei","NU",40.1271,9.5125,["08040"]],["Usellus","OR",39.8265,8.8378,["09090"]],["Usini","SS",40.6654,8.5279,["07049"]],["Ussana","SU",39.4036,9.0861,["09020"]],["Ussaramanna","SU",39.691,8.9036,["09020"]],["Ussassai","NU",39.8174,9.4044,["08040"]],["Uta","CA",39.2279,8.9166,["09068"]],["Valledoria","SS",40.92,8.8198,["07039"]],["Vallermosa","SU",39.3664,8.7764,["09010"]],["Viddalba","SS",40.9213,8.9328,["07030"]],["Villa San Pietro","CA",39.0627,8.9302,["09050"]],["Villa Sant'Antonio","OR",39.8582,8.8999,["09080"]],["Villa Verde","OR",39.8117,8.8016,["09090"]],["Villacidro","SU",39.4434,8.7344,["09039"]],["Villagrande Strisaili","NU",39.9931,9.4427,["08049"]],["Villamar","SU",39.6167,8.9717,["09020"]],["Villamassargia","SU",39.2552,8.6699,["09010"]],["Villanova Monteleone","SS",40.4729,8.4719,["07019"]],["Villanova Truschedu","OR",39.9959,8.7613,["09084"]],["Villanova Tulo","SU",39.7898,9.1919,["09066"]],["Villanovaforru","SU",39.6242,8.8726,["09020"]],["Villanovafranca","SU",39.6461,9.0118,["09020"]],["Villaperuccio","SU",39.1138,8.6489,["09010"]],["Villaputzu","SU",39.5349,9.5513,["09040"]],["Villasalto","SU",39.4681,9.3942,["09040"]],["Villasimius","SU",39.1557,9.5091,["09049"]],["Villasor","SU",39.3834,8.9105,["09034"]],["Villaspeciosa","SU",39.2969,8.8936,["09010"]],["Villaurbana","OR",39.8709,8.7816,["09080"]],["Zeddiani","OR",39.9825,8.6013,["09070"]],["Zerfaliu","OR",39.9762,8.7197,["09070"]]];
+
+  var PROVINCE = { CA: 'Cagliari', SU: 'Sud Sardegna', OR: 'Oristano', NU: 'Nuoro', SS: 'Sassari' };
+
+  var radice = document.getElementById('rpv');
+  if (!radice || typeof L === 'undefined') return;
+
+  var $ = function (id) { return document.getElementById(id); };
+  var lista = $('rpv-lista'), stato = $('rpv-stato'), cerca = $('rpv-cerca');
+  var origine = null, nomeOrigine = '', filtroProv = '', segnaIo = null;
+  var vuoto = document.createElement('li');
+  vuoto.className = 'rpv-vuoto';
+  vuoto.hidden = true;
+
+  /* ---------------------------------------------------------- utilità */
+  function norm(s) {
+    return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[’'`]/g, "'").replace(/\s+/g, ' ').trim();
+  }
+  function distanza(a, b) { // haversine, km
+    var r = Math.PI / 180, dLa = (b.lat - a.lat) * r, dLo = (b.lng - a.lng) * r;
+    var h = Math.sin(dLa / 2) * Math.sin(dLa / 2) +
+            Math.cos(a.lat * r) * Math.cos(b.lat * r) * Math.sin(dLo / 2) * Math.sin(dLo / 2);
+    return 12742 * Math.asin(Math.sqrt(h));
+  }
+  function km(d) { return (d < 10 ? d.toFixed(1).replace('.', ',') : Math.round(d)) + ' km'; }
+  function telHref(t) { return 'tel:' + t.replace(/[^\d+]/g, '').replace(/^(?!\+)/, '+39'); }
+  function indicazioni(p) { return 'https://www.google.com/maps/dir/?api=1&destination=' + p.lat + ',' + p.lng; }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]; }); }
+  var ICONA_DIR = '<svg viewBox="0 0 512 512" aria-hidden="true"><path d="M444.52 3.52L28.74 195.42c-47.97 22.39-31.98 92.75 19.19 92.75h175.91v175.91c0 51.17 70.36 67.17 92.75 19.19l191.9-415.78c15.99-38.39-25.59-79.97-63.97-63.97z"/></svg>';
+
+  /* ------------------------------------------------------------- mappa */
+  var mappa = L.map('rpv-mappa', { scrollWheelZoom: false, zoomSnap: 0.25 });
+  mappa.attributionControl.setPrefix('<a href="https://leafletjs.com">Leaflet</a>');
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 18, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  }).addTo(mappa);
+  var gruppo = L.markerClusterGroup({
+    showCoverageOnHover: false, maxClusterRadius: 45, spiderfyOnMaxZoom: true,
+    iconCreateFunction: function (c) {
+      return L.divIcon({ className: '', html: '<span class="rpv-cluster">' + c.getChildCount() + '</span>', iconSize: [40, 40] });
+    }
+  }).addTo(mappa);
+  var PAGINA = 10, mostrati = PAGINA;
+  mappa.on('focus', function () { mappa.scrollWheelZoom.enable(); });
+  mappa.on('blur', function () { mappa.scrollWheelZoom.disable(); });
+
+  var icona = function (on) {
+    return L.divIcon({ className: '', html: '<span class="rpv-pin' + (on ? ' rpv-pin--attivo' : '') + '"></span>',
+                       iconSize: [26, 26], iconAnchor: [13, 30], popupAnchor: [0, -30] });
+  };
+
+  PUNTI.forEach(function (p) {
+    var citta = (p.cap ? p.cap + ' ' : '') + p.comune + ' (' + p.prov + ')';
+    p.marker = L.marker([p.lat, p.lng], { icon: icona(false), title: p.nome, keyboard: true })
+      .bindPopup('<b>' + esc(p.nome) + '</b>' + esc(p.indirizzo) + '<br>' + esc(citta) +
+                 (p.tel ? '<br><a href="' + telHref(p.tel) + '">' + esc(p.tel) + '</a>' : '') +
+                 '<br><a href="' + indicazioni(p) + '" target="_blank" rel="noopener">Indicazioni stradali →</a>')
+      .on('click', function () { seleziona(p.id, 'mappa'); });
+    gruppo.addLayer(p.marker);
+
+    /* scheda in elenco: nome, indirizzo, città e provincia, telefono, indicazioni */
+    var li = document.createElement('li');
+    li.className = 'rpv-voce';
+    li.innerHTML =
+      '<button type="button" class="rpv-voce__testa">' +
+        '<span class="rpv-voce__nome">' + esc(p.nome) + '</span><span class="rpv-dist"></span>' +
+      '</button>' +
+      '<p>' + esc(p.indirizzo) + '<br><span class="rpv-voce__citta">' + esc(citta) + '</span></p>' +
+      (p.tel ? '<p><a class="rpv-voce__tel" href="' + telHref(p.tel) + '">' + esc(p.tel) + '</a></p>' : '') +
+      '<a class="rpv-btn rpv-btn--vuoto rpv-btn--piccolo" href="' + indicazioni(p) + '" target="_blank" rel="noopener">' +
+        ICONA_DIR + 'Indicazioni stradali</a>';
+    li.addEventListener('click', function (e) {
+      if (e.target.closest('a')) return;
+      seleziona(p.id, 'lista');
+    });
+    p.voce = li;
+    lista.appendChild(li);
+  });
+  var altri = document.createElement('li');
+  altri.className = 'rpv-altri';
+  altri.innerHTML = '<button type="button" class="rpv-btn rpv-btn--vuoto rpv-btn--piccolo">Mostra altri punti vendita</button>';
+  altri.querySelector('button').addEventListener('click', function () { mostrati += PAGINA; aggiorna(false, true); });
+  lista.appendChild(vuoto);
+  lista.appendChild(altri);
+
+  /* ------------------------------------------------------ comportamento */
+  function seleziona(id, da) {
+    PUNTI.forEach(function (p) {
+      var on = p.id === id;
+      p.voce.setAttribute('aria-current', on ? 'true' : 'false');
+      p.marker.setIcon(icona(on));
+      p.marker.setZIndexOffset(on ? 1000 : 0);
+      if (!on) return;
+      if (da === 'lista') {
+        gruppo.zoomToShowLayer(p.marker, function () { p.marker.openPopup(); });
+      } else if (da === 'mappa' && getComputedStyle(lista).overflowY === 'auto') {
+        lista.scrollTo({ top: p.voce.offsetTop - lista.offsetTop - 4, behavior: 'smooth' });
+      }
+    });
+  }
+
+  function aggiorna(inquadra, soloLista) {
+    if (!soloLista) mostrati = PAGINA;
+    var vis = PUNTI.filter(function (p) { return !filtroProv || p.prov === filtroProv; });
+    PUNTI.forEach(function (p) {
+      var on = vis.indexOf(p) > -1;
+      if (on && !gruppo.hasLayer(p.marker)) gruppo.addLayer(p.marker);
+      if (!on && gruppo.hasLayer(p.marker)) gruppo.removeLayer(p.marker);
+      p.d = origine ? distanza(origine, p) : null;
+      p.voce.querySelector('.rpv-dist').textContent = p.d == null ? '' : km(p.d);
+    });
+    var ordinati = PUNTI.slice().sort(function (a, b) {
+      return origine ? a.d - b.d : b.lat - a.lat; // senza origine: da nord a sud
+    });
+    ordinati.forEach(function (p) { lista.appendChild(p.voce); });
+    lista.appendChild(vuoto);
+    lista.appendChild(altri);
+    var visOrd = ordinati.filter(function (p) { return vis.indexOf(p) > -1; });
+    PUNTI.forEach(function (p) { var k = visOrd.indexOf(p); p.voce.hidden = k < 0 || k >= mostrati; });
+    altri.hidden = visOrd.length <= mostrati;
+    if (soloLista) return;
+    lista.scrollTop = 0;
+    vuoto.hidden = visOrd.length > 0;
+    vuoto.textContent = 'Nessun punto vendita Rossopregio in questa zona. Prova con un comune vicino o contattaci.';
+
+    if (origine && visOrd.length) {
+      var primo = visOrd[0];
+      stato.innerHTML = 'Il punto vendita più vicino a ' + esc(nomeOrigine) + ' è <b>' + esc(primo.nome) +
+        '</b> a ' + esc(primo.comune) + ', a ' + km(primo.d) + '. <button type="button" class="rpv-link" data-azione="tutti">Mostra tutti</button>';
+      seleziona(primo.id);
+      if (inquadra) {
+        var b = L.latLngBounds([[origine.lat, origine.lng]]);
+        visOrd.slice(0, 3).forEach(function (p) { b.extend([p.lat, p.lng]); });
+        mappa.flyToBounds(b, { padding: [50, 50], maxZoom: 12, duration: .7 });
+      }
+    } else {
+      var n = visOrd.length;
+      stato.innerHTML = '<b>' + n + (n === 1 ? ' punto vendita' : ' punti vendita') + '</b> ' +
+        (filtroProv ? 'in provincia di ' + PROVINCE[filtroProv] : 'in Sardegna') + '.' +
+        (filtroProv ? ' <button type="button" class="rpv-link" data-azione="tutti">Mostra tutti</button>' : '');
+      if (inquadra && n) {
+        mappa.flyToBounds(L.latLngBounds(visOrd.map(function (p) { return [p.lat, p.lng]; })),
+          { padding: [40, 40], maxZoom: 11, duration: .6 });
+      }
+    }
+  }
+
+  function impostaOrigine(lat, lng, nome) {
+    origine = { lat: lat, lng: lng };
+    nomeOrigine = nome;
+    filtroProv = '';
+    if (segnaIo) mappa.removeLayer(segnaIo);
+    segnaIo = L.marker([lat, lng], {
+      icon: L.divIcon({ className: '', html: '<span class="rpv-io"></span>', iconSize: [18, 18], iconAnchor: [9, 9] }),
+      interactive: false, keyboard: false
+    }).addTo(mappa);
+    aggiorna(true);
+  }
+
+  function impostaProvincia(sigla) {
+    origine = null; nomeOrigine = ''; filtroProv = sigla;
+    if (segnaIo) { mappa.removeLayer(segnaIo); segnaIo = null; }
+    mappa.closePopup();
+    PUNTI.forEach(function (p) { p.voce.setAttribute('aria-current', 'false'); p.marker.setIcon(icona(false)); });
+    aggiorna(true);
+  }
+
+  function azzera() { cerca.value = ''; impostaProvincia(''); }
+
+  /* Interpreta il testo: CAP (5 cifre) → comune; «provincia di X» o sigla → provincia;
+     altrimenti nome del comune. Un capoluogo vale come città (es. «Nuoro»). */
+  function interpreta(testo) {
+    var q = norm(testo).replace(/^provincia (di |del )?/, '');
+    if (!q) return null;
+    if (/^\d{5}$/.test(q)) {
+      var perCap = COMUNI.filter(function (c) { return c[4].indexOf(q) > -1; })[0];
+      return perCap ? { tipo: 'comune', c: perCap, etichetta: q + ' ' + perCap[0] } : { tipo: 'nessuno' };
+    }
+    var sigla = Object.keys(PROVINCE).filter(function (s) {
+      return norm(s) === q || (norm(PROVINCE[s]) === q && /^provincia/.test(norm(testo))) || (s === 'SU' && q === 'sud sardegna');
+    })[0];
+    if (sigla) return { tipo: 'provincia', sigla: sigla };
+    var c = COMUNI.filter(function (c) { return norm(c[0]) === q; })[0] ||
+            COMUNI.filter(function (c) { return norm(c[0]).indexOf(q) === 0; })[0] ||
+            COMUNI.filter(function (c) { return norm(c[0]).indexOf(q) > -1; })[0];
+    return c ? { tipo: 'comune', c: c, etichetta: c[0] } : { tipo: 'nessuno' };
+  }
+
+  // suggerimenti mentre si scrive: comuni + province
+  $('rpv-suggerimenti').innerHTML =
+    Object.keys(PROVINCE).map(function (s) { return '<option value="Provincia di ' + PROVINCE[s] + '">'; }).join('') +
+    COMUNI.map(function (c) { return '<option value="' + esc(c[0]) + '">'; }).join('');
+
+  $('rpv-form').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var r = interpreta(cerca.value);
+    if (!r) { azzera(); return; }
+    if (r.tipo === 'nessuno') {
+      stato.innerHTML = 'Non trovo «' + esc(cerca.value) + '» in Sardegna. Prova con il nome di un comune, una provincia o un CAP.';
+      return;
+    }
+    if (r.tipo === 'provincia') { cerca.value = 'Provincia di ' + PROVINCE[r.sigla]; impostaProvincia(r.sigla); return; }
+    if (!/^\d/.test(r.etichetta)) cerca.value = r.c[0];
+    impostaOrigine(r.c[2], r.c[3], r.etichetta);
+  });
+
+  // geolocalizzazione: solo su richiesta, il browser chiede il permesso
+  $('rpv-geo').addEventListener('click', function () {
+    if (!navigator.geolocation) { stato.textContent = 'Il browser non permette di leggere la posizione: inserisci città, provincia o CAP.'; return; }
+    stato.textContent = 'Cerco la tua posizione…';
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      cerca.value = '';
+      impostaOrigine(pos.coords.latitude, pos.coords.longitude, 'te');
+    }, function () {
+      stato.textContent = 'Non riesco a leggere la tua posizione. Inserisci città, provincia o CAP nel campo di ricerca.';
+    }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+  });
+
+  stato.addEventListener('click', function (e) { if (e.target.closest('[data-azione="tutti"]')) azzera(); });
+
+  // prima vista: tutta la Sardegna
+  mappa.fitBounds(L.latLngBounds(PUNTI.map(function (p) { return [p.lat, p.lng]; })), { padding: [40, 40] });
+  aggiorna(false);
+  // la mappa dentro schede/accordion di Elementor nasce a larghezza zero: ricalcolo quando diventa visibile
+  if ('ResizeObserver' in window) new ResizeObserver(function () { mappa.invalidateSize(); }).observe($('rpv-mappa'));
+})();
+</script>
