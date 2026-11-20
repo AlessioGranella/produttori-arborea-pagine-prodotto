@@ -217,3 +217,17 @@ alla lettera dalla struttura testuale del cliente (20/11/2026).
 | Trova il punto vendita | Titolo + Editor di testo + **widget HTML** (il blocco in `elementor/`) |
 | La qualità della carne | Contenitore a 2 colonne + Titolo + Editor di testo + Immagine |
 | Non trovi Rossopregio | Contenitore con sfondo carne + Titolo + Editor di testo + Pulsante |
+
+### Template Elementor (.json)
+
+`elementor/rossopregio-punti-vendita.json` — la pagina già montata in widget nativi (Contenitori,
+Titolo, Editor di testo, Immagine, Pulsante, HTML), si genera con `python3 src/build-elementor-json.py`
+dopo `build-rossopregio.py`. Sito verificato il 20/11/2026: Elementor 4.3.6 con Contenitori + Elementor Pro.
+
+- Import: Template → Libreria template → Importa template; poi nella pagina «Aggiungi template» → I miei template.
+- Colori collegati ai Colori globali del kit 1101 (secondary = carne, text, sabbia); il carne scuro `#6B121C`
+  dei sottotitoli non è nel kit ed è scritto a mano.
+- Responsive: colonne in verticale su tablet e mobile, caratteri e spaziature ridotti per tablet e mobile.
+- Le immagini puntano a GitHub Pages: all'import Elementor le copia nella Libreria media.
+- Il CSS del widget usa `#rpv` davanti a ogni regola: serve a battere `.elementor-kit-1101 button`
+  e gli stili di Astra su button/input/a.
